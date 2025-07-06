@@ -24,15 +24,15 @@ export default function Home() {
 
             <form method="POST" action="https://formsubmit.co/infor@datacraftcoders.com">
               <div className="mb-3">
-                <label htmlFor="name" className="form-label">Name</label>
+                <label htmlFor="name" className="form-label text-dark">Name</label>
                 <input type="text" name="name" className="form-control" required />
               </div>
               <div className="mb-3">
-                <label htmlFor="email" className="form-label">Email</label>
+                <label htmlFor="email" className="form-label text-dark">Email</label>
                 <input type="email" name="email" className="form-control" required />
               </div>
               <div className="mb-3">
-                <label htmlFor="message" className="form-label">Message</label>
+                <label htmlFor="message" className="form-label text-dark">Message</label>
                 <textarea name="message" className="form-control" rows="4" required></textarea>
               </div>
               <input type="hidden" name="_captcha" value="false" />
