@@ -2,25 +2,26 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="container-fluid vh-100 d-flex align-items-center">
-      <div className="row w-100">
+    <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center">
+      <div className="row g-0">
         {/* Lado izquierdo: Logo */}
-        <div className="col-md-6 d-flex justify-content-center align-items-center bg-light">
+        <div className="col-md-6 d-flex justify-content-center align-items-center bg-light p-5">
           <Image
             src="/talentcrafterslogo.png"
             alt="Talent Crafters Logo"
             width={400}
             height={400}
             priority
-            style={{ maxWidth: "80%", height: "auto" }}
+            style={{ maxWidth: "100%", height: "auto" }}
           />
         </div>
 
         {/* Lado derecho: Formulario */}
-        <div className="col-md-6 d-flex justify-content-center align-items-center bg-white">
-          <div className="w-75">
-            <h2 className="mb-4">We’re building something great</h2>
+        <div className="col-md-6 d-flex justify-content-center align-items-center bg-white p-5">
+          <div className="w-100" style={{ maxWidth: "450px" }}>
+            <h2 className="mb-4 text-primary">We’re building something great</h2>
             <p className="mb-4">Leave us a message and we’ll get back to you!</p>
+
             <form method="POST" action="https://formsubmit.co/infor@datacraftcoders.com">
               <div className="mb-3">
                 <label htmlFor="name" className="form-label">Name</label>
@@ -34,9 +35,8 @@ export default function Home() {
                 <label htmlFor="message" className="form-label">Message</label>
                 <textarea name="message" className="form-control" rows="4" required></textarea>
               </div>
-              {/* Anti-spam hidden input */}
               <input type="hidden" name="_captcha" value="false" />
-              <button type="submit" className="btn btn-primary w-100">Send</button>
+              <button type="submit" className="btn btn-success w-100">Send Message</button>
             </form>
           </div>
         </div>
