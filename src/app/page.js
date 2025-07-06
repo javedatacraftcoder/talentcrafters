@@ -19,7 +19,7 @@ export default function Home() {
         {/* Lado derecho: Formulario */}
         <div className="col-md-6 d-flex justify-content-center align-items-center bg-white p-5">
           <div className="w-100" style={{ maxWidth: "450px" }}>
-            <h2 className="mb-4 text-primary">We’re building something great</h2>
+            <h2 className="mb-4 text-primary text-dark">We’re building something great</h2>
             <p className="mb-4">Leave us a message and we’ll get back to you!</p>
 
             <form method="POST" action="https://formsubmit.co/infor@datacraftcoders.com">
