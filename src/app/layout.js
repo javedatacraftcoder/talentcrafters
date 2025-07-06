@@ -24,9 +24,7 @@ export default function RootLayout({ children }) {
         {/* Bootstrap CSS via CDN */}
         <link
           rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          integrity="sha384-Li9E6k5jle5M+BLwZ19eMyZJ28H+fNdrFf0I8kfuKT8mC5nHj4Wb3n5yAq1AK5VS"
-          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
@@ -34,10 +32,7 @@ export default function RootLayout({ children }) {
 
         {/* Bootstrap JS via next/script (async & valid) */}
         <Script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-          strategy="afterInteractive"
-          integrity="sha384-ENjdO4Dr2bkBIFxQpeo3lWzp6V96Dk+W8s1ZrDNpTcZplENYx04ecVIK60Qv2Q8="
-          crossOrigin="anonymous"
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"
         />
       </body>
     </html>
