@@ -21,9 +21,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        {/* Bootstrap CSS via CDN */}
         <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           integrity="sha384-Li9E6k5jle5M+BLwZ19eMyZJ28H+fNdrFf0I8kfuKT8mC5nHj4Wb3n5yAq1AK5VS"
           crossOrigin="anonymous"
         />
@@ -31,12 +32,12 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
 
-        {/* Bootstrap bundle JS (async) */}
+        {/* Bootstrap JS via next/script (async & valid) */}
         <Script
           src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+          strategy="afterInteractive"
           integrity="sha384-ENjdO4Dr2bkBIFxQpeo3lWzp6V96Dk+W8s1ZrDNpTcZplENYx04ecVIK60Qv2Q8="
           crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
       </body>
     </html>
