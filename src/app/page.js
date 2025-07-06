@@ -1,12 +1,16 @@
+import Image from "next/image";
+
 export default function Home() {
   return (
     <div className="container-fluid vh-100 d-flex align-items-center">
       <div className="row w-100">
         {/* Lado izquierdo: Logo */}
         <div className="col-md-6 d-flex justify-content-center align-items-center bg-light">
-          <img
+          <Image
             src="/talentcrafterslogo.png"
             alt="Talent Crafters Logo"
+            width={400}
+            height={400}
             style={{ maxWidth: "80%", height: "auto" }}
           />
         </div>
