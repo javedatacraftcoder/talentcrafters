@@ -2,8 +2,8 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center">
-      <div className="row g-0">
+    <div className="container-fluid min-vh-100 d-flex align-items-center">
+      <div className="row w-100 g-0">
         {/* Lado izquierdo: Logo */}
         <div className="col-md-6 d-flex justify-content-center align-items-center bg-light p-5">
           <Image
