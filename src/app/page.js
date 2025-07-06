@@ -11,6 +11,7 @@ export default function Home() {
             alt="Talent Crafters Logo"
             width={400}
             height={400}
+            priority
             style={{ maxWidth: "80%", height: "auto" }}
           />
         </div>
