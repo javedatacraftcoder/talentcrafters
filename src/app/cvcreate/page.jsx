@@ -6,6 +6,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
+import slugify from "slugify";
+import { nanoid } from "nanoid";
 
 const formSchema = {
   sections: [
@@ -134,10 +136,16 @@ export default function CreateCVPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const fullName = formData.fullName || session.user.name;
+    const baseSlug = slugify(fullName, { lower: true });
+    const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
+
     const finalData = {
       ...formData,
       ...repeatableSections,
+      cvSlug: uniqueSlug,
     };
+
     await setDoc(doc(db, "cvs", session.user.email), finalData);
     router.push("/dashboard");
   };
