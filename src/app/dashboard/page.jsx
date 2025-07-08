@@ -10,6 +10,7 @@ export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [cvExists, setCvExists] = useState(null); // null = loading
+  const [cvSlug, setCvSlug] = useState("");
 
   const user = session?.user;
 
@@ -22,7 +23,12 @@ export default function Dashboard() {
       const checkCV = async () => {
         const cvRef = doc(db, "cvs", user.email);
         const cvSnap = await getDoc(cvRef);
-        setCvExists(cvSnap.exists());
+        if (cvSnap.exists()) {
+          setCvExists(true);
+          setCvSlug(cvSnap.data().cvSlug);
+        } else {
+          setCvExists(false);
+        }
       };
 
       checkCV();
@@ -30,6 +36,8 @@ export default function Dashboard() {
   }, [status, user, router]);
 
   if (status === "loading" || cvExists === null) return <p className="text-center mt-5 text-dark">Loading...</p>;
+
+  const publicURL = `https://talentcrafters.datacraftcoders.com/cv/${cvSlug}`;
 
   return (
     <div className="container mt-5 text-dark">
@@ -62,7 +70,24 @@ export default function Dashboard() {
               <>
                 <p>Your CV is ready.</p>
                 <a href="/editcv" className="btn btn-primary me-2">Edit CV</a>
-                <button className="btn btn-danger">Delete CV</button>
+                <button className="btn btn-danger me-2">Delete CV</button>
+                <div className="mt-3">
+                  <label className="form-label">Public URL</label>
+                  <input
+                    type="text"
+                    className="form-control mb-2"
+                    value={publicURL}
+                    readOnly
+                  />
+                  <a
+                    href={publicURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline-success"
+                  >
+                    View Public CV
+                  </a>
+                </div>
               </>
             ) : (
               <>
