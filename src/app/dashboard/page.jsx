@@ -1,7 +1,6 @@
-// src/app/dashboard/page.jsx
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
@@ -30,19 +29,10 @@ export default function Dashboard() {
     }
   }, [status, user, router]);
 
-  if (status === "loading" || cvExists === null) return <p className="text-center mt-5">Loading...</p>;
+  if (status === "loading" || cvExists === null) return <p className="text-center mt-5 text-dark">Loading...</p>;
 
   return (
-    <div className="container mt-5">
-      {/* Menú */}
-      <nav className="d-flex justify-content-between align-items-center mb-4">
-        <div><h4 className="m-0 fw-bold">Talent Crafters</h4></div>
-        <div>
-          <a href="/" className="btn btn-outline-secondary me-2">Home</a>
-          <button onClick={() => signOut()} className="btn btn-outline-danger">Logout</button>
-        </div>
-      </nav>
-
+    <div className="container mt-5 text-dark">
       <div className="row">
         {/* Info usuario */}
         <div className="col-md-6 mb-4">
@@ -71,8 +61,8 @@ export default function Dashboard() {
             {cvExists ? (
               <>
                 <p>Your CV is ready.</p>
-                <a href="/edit-cv" className="btn btn-outline-primary me-2">Edit CV</a>
-                <button className="btn btn-outline-danger">Delete CV</button>
+                <a href="/edit-cv" className="btn btn-primary me-2">Edit CV</a>
+                <button className="btn btn-danger">Delete CV</button>
               </>
             ) : (
               <>

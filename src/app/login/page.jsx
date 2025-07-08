@@ -22,7 +22,12 @@ export default function LoginPage() {
         <div className="col-md-6 d-flex justify-content-center align-items-center p-5">
           <div className="text-center">
             <h2 className="mb-4">Login to Talent Crafters</h2>
-            <button onClick={() => signIn("google")} className="btn btn-primary">
+            <button
+              onClick={() =>
+                signIn("google", { callbackUrl: "/dashboard" })
+              }
+              className="btn btn-primary"
+            >
               Sign in with Google
             </button>
           </div>
