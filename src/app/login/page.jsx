@@ -24,12 +24,16 @@ export default function LoginPage() {
             <h2 className="mb-4">Login to Talent Crafters</h2>
             <button
               onClick={() =>
-                signIn("google", { callbackUrl: "/dashboard" })
+                signIn("google", {
+                  callbackUrl: "/dashboard",
+                  prompt: "select_account",
+                })
               }
               className="btn btn-primary"
             >
               Sign in with Google
             </button>
+
           </div>
         </div>
       </div>
