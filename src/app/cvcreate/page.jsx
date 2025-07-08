@@ -22,12 +22,7 @@ const formSchema = {
     {
       title: "Professional Summary",
       fields: [
-        {
-          label: "Brief summary about yourself",
-          name: "summary",
-          type: "textarea",
-          required: true
-        }
+        { label: "Brief summary about yourself", name: "summary", type: "textarea", required: true }
       ]
     },
     {
@@ -96,23 +91,153 @@ const formSchema = {
     {
       title: "Consent",
       fields: [
-        {
-          label: "I authorize the use of my data to generate a public CV on this platform.",
-          name: "dataConsent",
-          type: "checkbox",
-          required: true
-        }
+        { label: "I authorize the use of my data to generate a public CV on this platform.", name: "dataConsent", type: "checkbox", required: true }
       ]
     }
   ]
 };
 
 export default function CreateCVPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [formData, setFormData] = useState({});
+  const [repeatableSections, setRepeatableSections] = useState({});
+
+  if (!session) return <p className="text-center mt-5 text-dark">Please log in to create your CV.</p>;
+
+  const handleChange = (e, sectionKey, index = null) => {
+    const { name, value, type, checked } = e.target;
+    if (index !== null) {
+      setRepeatableSections((prev) => {
+        const updated = [...(prev[sectionKey] || [])];
+        updated[index] = { ...updated[index], [name]: type === "checkbox" ? checked : value };
+        return { ...prev, [sectionKey]: updated };
+      });
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    }
+  };
+
+  const addSectionEntry = (sectionKey) => {
+    setRepeatableSections((prev) => ({
+      ...prev,
+      [sectionKey]: [...(prev[sectionKey] || []), {}],
+    }));
+  };
+
+  const removeSectionEntry = (sectionKey, index) => {
+    setRepeatableSections((prev) => ({
+      ...prev,
+      [sectionKey]: prev[sectionKey].filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const finalData = {
+      ...formData,
+      ...repeatableSections,
+    };
+    await setDoc(doc(db, "cvs", session.user.email), finalData);
+    router.push("/dashboard");
+  };
+
   return (
-    <div className="container mt-5">
+    <div className="container mt-5 text-dark">
       <h2 className="mb-4">Create Your CV</h2>
-      {/* Aquí va el render dinámico de todas las secciones con add/remove y guardado en Firestore */}
-      <p>Formulario en desarrollo con todas las secciones dinámicas.</p>
+      <form onSubmit={handleSubmit}>
+        {formSchema.sections.map((section, i) => (
+          <div key={i} className="mb-4">
+            <h5>{section.title}</h5>
+            {section.repeatable ? (
+              <>
+                {(repeatableSections[section.title] || [{}]).map((entry, idx) => (
+                  <div key={idx} className="border rounded p-3 mb-3">
+                    {section.fields.map((field) => (
+                      <div className="mb-2" key={field.name}>
+                        <label className="form-label">{field.label}</label>
+                        {field.type === "textarea" ? (
+                          <textarea
+                            name={field.name}
+                            className="form-control"
+                            required={field.required}
+                            value={entry[field.name] || ""}
+                            onChange={(e) => handleChange(e, section.title, idx)}
+                          ></textarea>
+                        ) : field.type === "select" ? (
+                          <select
+                            name={field.name}
+                            className="form-control"
+                            required={field.required}
+                            value={entry[field.name] || ""}
+                            onChange={(e) => handleChange(e, section.title, idx)}
+                          >
+                            <option value="">Select...</option>
+                            {field.options.map((opt, i) => (
+                              <option key={i} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type={field.type}
+                            name={field.name}
+                            className="form-control"
+                            required={field.required}
+                            value={entry[field.name] || ""}
+                            onChange={(e) => handleChange(e, section.title, idx)}
+                          />
+                        )}
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => removeSectionEntry(section.title, idx)} className="btn btn-sm btn-danger">
+                      − Remove
+                    </button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => addSectionEntry(section.title)} className="btn btn-sm btn-primary">
+                  + Add {section.title}
+                </button>
+              </>
+            ) : (
+              section.fields.map((field) => (
+                <div className="mb-2" key={field.name}>
+                  <label className="form-label">{field.label}</label>
+                  {field.type === "textarea" ? (
+                    <textarea
+                      name={field.name}
+                      className="form-control"
+                      required={field.required}
+                      onChange={(e) => handleChange(e, section.title)}
+                    ></textarea>
+                  ) : field.type === "checkbox" ? (
+                    <div className="form-check">
+                      <input
+                        type="checkbox"
+                        name={field.name}
+                        className="form-check-input"
+                        required={field.required}
+                        onChange={(e) => handleChange(e, section.title)}
+                      />
+                      <label className="form-check-label">{field.label}</label>
+                    </div>
+                  ) : (
+                    <input
+                      type={field.type}
+                      name={field.name}
+                      className="form-control"
+                      required={field.required}
+                      onChange={(e) => handleChange(e, section.title)}
+                    />
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        ))}
+        <button type="submit" className="btn btn-success mt-4">
+          Save CV
+        </button>
+      </form>
     </div>
   );
 }
