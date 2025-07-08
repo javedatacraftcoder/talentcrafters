@@ -8,7 +8,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import html2pdf from "html2pdf.js";
 
 export default function PublicCVPage() {
-  const { username } = useParams();
+  const { slug } = useParams();
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
   const printRef = useRef();
@@ -16,7 +16,7 @@ export default function PublicCVPage() {
   useEffect(() => {
     const fetchData = async () => {
       const cvsSnap = await getDocs(collection(db, "cvs"));
-      const found = cvsSnap.docs.find((doc) => doc.data().cvSlug === username);
+      const found = cvsSnap.docs.find((doc) => doc.data().cvSlug === slug);
       if (found) {
         setCvData(found.data());
       }
