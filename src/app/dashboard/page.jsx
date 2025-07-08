@@ -91,7 +91,7 @@ export default function Dashboard() {
               </>
             ) : (
               <>
-                <p>You don't have a CV yet.</p>
+                <p>You don't have a CV yet</p>
                 <a href="/cvcreate" className="btn btn-primary">Create CV</a>
               </>
             )}
