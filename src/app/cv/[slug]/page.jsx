@@ -23,7 +23,7 @@ export default function PublicCVPage() {
       setLoading(false);
     };
     fetchData();
-  }, [username]);
+  }, [slug]); //username
 
   const handleDownloadPDF = () => {
     const element = printRef.current;
