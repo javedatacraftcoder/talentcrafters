@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc } from "firebase/firestore";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -39,6 +40,20 @@ export default function Dashboard() {
 
   const publicURL = `https://talentcrafters.datacraftcoders.com/cv/${cvSlug}`;
 
+  const handleDeleteCV = async () => {
+  const confirmed = window.confirm("Are you sure you want to delete your CV? This action cannot be undone.");
+  if (!confirmed) return;
+
+  try {
+    await deleteDoc(doc(db, "cvs", session.user.email));
+    alert("CV deleted successfully.");
+    router.refresh(); // o router.push("/dashboard") si prefieres redirigir
+  } catch (error) {
+    console.error("Error deleting CV:", error);
+    alert("There was a problem deleting your CV.");
+  }
+};
+
   return (
     <div className="container mt-5 text-dark">
       <div className="row">
@@ -70,7 +85,9 @@ export default function Dashboard() {
               <>
                 <p>Your CV is ready.</p>
                 <a href="/editcv" className="btn btn-primary me-2">Edit CV</a>
-                <button className="btn btn-danger me-2">Delete CV</button>
+                <button onClick={handleDeleteCV} className="btn btn-danger me-2">
+                  Delete CV
+                </button>
                 <div className="mt-3">
                   <label className="form-label">Public URL</label>
                   <input
