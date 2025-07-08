@@ -61,13 +61,13 @@ export default function Dashboard() {
             {cvExists ? (
               <>
                 <p>Your CV is ready.</p>
-                <a href="/edit-cv" className="btn btn-primary me-2">Edit CV</a>
+                <a href="/editcv" className="btn btn-primary me-2">Edit CV</a>
                 <button className="btn btn-danger">Delete CV</button>
               </>
             ) : (
               <>
                 <p>You don't have a CV yet.</p>
-                <a href="/create-cv" className="btn btn-primary">Create CV</a>
+                <a href="/cvcreate" className="btn btn-primary">Create CV</a>
               </>
             )}
           </div>
