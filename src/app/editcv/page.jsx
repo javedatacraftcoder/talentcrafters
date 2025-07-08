@@ -60,7 +60,10 @@ export default function EditCVPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await setDoc(doc(db, "cvs", session.user.email), formData);
+    await setDoc(doc(db, "cvs", session.user.email), {
+      ...formData,
+      cvSlug: formData.cvSlug, // ⬅️ preserva el slug si ya existe
+    });
     router.push("/dashboard");
   };
 
