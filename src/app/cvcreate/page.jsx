@@ -1,4 +1,4 @@
-// src/app/create-cv/page.jsx
+// src/app/cvcreate/page.jsx
 "use client";
 
 import { useState } from "react";
@@ -215,7 +215,7 @@ export default function CreateCVPage() {
                       name={field.name}
                       className="form-control"
                       required={field.required}
-                      onChange={(e) => handleChange(e, section.title)}
+                      onChange={(e) => handleChange(e)}
                     ></textarea>
                   ) : field.type === "checkbox" ? (
                     <div className="form-check">
@@ -224,7 +224,7 @@ export default function CreateCVPage() {
                         name={field.name}
                         className="form-check-input"
                         required={field.required}
-                        onChange={(e) => handleChange(e, section.title)}
+                        onChange={(e) => handleChange(e)}
                       />
                       <label className="form-check-label">{field.label}</label>
                     </div>
@@ -234,7 +234,7 @@ export default function CreateCVPage() {
                       name={field.name}
                       className="form-control"
                       required={field.required}
-                      onChange={(e) => handleChange(e, section.title)}
+                      onChange={(e) => handleChange(e)}
                     />
                   )}
                 </div>
