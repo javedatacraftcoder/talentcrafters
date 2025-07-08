@@ -25,7 +25,7 @@ export default function LoginPage() {
             <button
               onClick={() =>
                 signIn("google", {
-                  callbackUrl: "/dashboard",
+                  callbackUrl: `${window.location.origin}/dashboard`,
                   prompt: "select_account",
                 })
               }
@@ -33,7 +33,6 @@ export default function LoginPage() {
             >
               Sign in with Google
             </button>
-
           </div>
         </div>
       </div>
