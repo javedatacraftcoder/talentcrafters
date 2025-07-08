@@ -4,8 +4,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { deleteDoc, doc } from "firebase/firestore";
+import { doc, getDoc, deleteDoc } from "firebase/firestore";
+
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
