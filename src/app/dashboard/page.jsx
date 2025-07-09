@@ -4,12 +4,12 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, deleteDoc, updateDoc } from "firebase/firestore";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [cvExists, setCvExists] = useState(null); // null = loading
+  const [cvExists, setCvExists] = useState(null);
   const [cvSlug, setCvSlug] = useState("");
   const [cvData, setCvData] = useState(null);
 
@@ -56,6 +56,19 @@ export default function Dashboard() {
     }
   };
 
+  const updateThemeColor = async (e) => {
+    const newColor = e.target.value;
+    const cvRef = doc(db, "cvs", session.user.email);
+
+    try {
+      await updateDoc(cvRef, { themeColor: newColor });
+      setCvData((prev) => ({ ...prev, themeColor: newColor }));
+    } catch (error) {
+      console.error("Error updating theme color:", error);
+      alert("Failed to update theme color.");
+    }
+  };
+
   return (
     <div className="container mt-5 text-dark">
       <div className="row">
@@ -67,6 +80,24 @@ export default function Dashboard() {
             <div className="mb-2"><strong>Email:</strong> {user?.email}</div>
             <div className="mb-2"><strong>Phone:</strong> {cvData?.phone || <em>Not provided</em>}</div>
             <div className="mb-2"><strong>Address:</strong> {cvData?.location || <em>Not provided</em>}</div>
+
+            {/* Nuevo selector de color */}
+            <div className="mb-2">
+              <label className="form-label"><strong>Theme Color:</strong></label>
+              <select
+                className="form-select"
+                value={cvData?.themeColor || ""}
+                onChange={updateThemeColor}
+              >
+                <option value="">Select a color theme</option>
+                <option value="#0d6efd">Blue (Masculine)</option>
+                <option value="#e83e8c">Pink (Feminine)</option>
+                <option value="#6f42c1">Purple (Unisex)</option>
+                <option value="#198754">Green (Professional)</option>
+                <option value="#fd7e14">Orange (Modern)</option>
+              </select>
+            </div>
+
             <div className="mt-3">
               <img
                 src={cvData?.photo || "/default-avatar.png"}
@@ -87,7 +118,6 @@ export default function Dashboard() {
               <>
                 <p>Your CV is ready.</p>
 
-                {/* Estado de privacidad */}
                 <p className="mb-1">
                   <strong>Status:</strong>{" "}
                   {cvData?.dataConsent ? (

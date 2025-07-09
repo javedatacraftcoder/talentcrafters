@@ -69,23 +69,31 @@ export default function PublicCVPage() {
   if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
+  const themeColor = cvData.themeColor || "#0d6efd"; // Default to Bootstrap blue
+
   return (
     <div className="container my-5 text-dark">
       <div className="row shadow rounded overflow-hidden">
-        <div className="col-md-4 bg-light text-center py-4 px-3">
+        {/* Side panel */}
+        <div className="col-md-4 text-white py-4 px-3" style={{ backgroundColor: themeColor }}>
           {cvData.photo && (
-            <img src={cvData.photo} alt="Profile" className="rounded-circle mb-3" width="120" height="120" />
+            <img src={cvData.photo} alt="Profile" className="rounded-circle mb-3 bg-white p-1" width="120" height="120" />
           )}
           <h3 className="fw-bold">{cvData.fullName}</h3>
-          <p className="text-muted mb-1">{cvData.location}</p>
+          <p className="mb-1">{cvData.location}</p>
           <p className="mb-1">📞 {cvData.phone}</p>
           <p className="mb-3">📧 {cvData.email}</p>
           {cvData.linkedin && (
-            <a href={cvData.linkedin} target="_blank" className="btn btn-outline-primary btn-sm mb-3">
+            <a
+              href={cvData.linkedin}
+              target="_blank"
+              className="btn btn-light btn-sm mb-3 fw-bold"
+              rel="noopener noreferrer"
+            >
               View LinkedIn
             </a>
           )}
-          <hr />
+          <hr className="border-light" />
           {cvData.technicalSkills && (
             <>
               <h6 className="text-uppercase mt-4">Skills</h6>
@@ -108,18 +116,21 @@ export default function PublicCVPage() {
               </ul>
             </>
           )}
-          <hr />
-          <p className="text-muted small">Views: {cvData.views}</p>
-          <button className="btn btn-success btn-sm mt-2" onClick={handleDownloadPDF}>Download PDF</button>
+          <hr className="border-light" />
+          <p className="small">Views: {cvData.views}</p>
+          <button className="btn btn-outline-light btn-sm mt-2" onClick={handleDownloadPDF}>
+            Download PDF
+          </button>
         </div>
 
+        {/* Main panel */}
         <div className="col-md-8 bg-white p-4" ref={printRef}>
-          <h4 className="border-bottom pb-2 mb-4">Professional Summary</h4>
+          <h4 className="pb-2 mb-4 border-bottom border-3" style={{ borderColor: themeColor }}>Professional Summary</h4>
           <p>{cvData.summary}</p>
 
           {cvData["Work Experience"]?.length > 0 && (
             <section className="mb-4">
-              <h4 className="border-bottom pb-2">Work Experience</h4>
+              <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Work Experience</h4>
               {cvData["Work Experience"].map((job, i) => (
                 <div key={i} className="mb-3">
                   <h6>{job.jobTitle} at {job.company}</h6>
@@ -133,7 +144,7 @@ export default function PublicCVPage() {
 
           {cvData.Education?.length > 0 && (
             <section className="mb-4">
-              <h4 className="border-bottom pb-2">Education</h4>
+              <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Education</h4>
               {cvData.Education.map((edu, i) => (
                 <div key={i} className="mb-3">
                   <h6>{edu.degree} - {edu.institution}</h6>
@@ -146,12 +157,16 @@ export default function PublicCVPage() {
 
           {cvData.Projects?.length > 0 && (
             <section className="mb-4">
-              <h4 className="border-bottom pb-2">Projects</h4>
+              <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Projects</h4>
               {cvData.Projects.map((proj, i) => (
                 <div key={i} className="mb-3">
                   <h6>{proj.projectName}</h6>
                   <p>{proj.projectDescription}</p>
-                  {proj.projectLink && <a href={proj.projectLink} target="_blank">View Project</a>}
+                  {proj.projectLink && (
+                    <a href={proj.projectLink} target="_blank" rel="noopener noreferrer" style={{ color: themeColor }}>
+                      View Project
+                    </a>
+                  )}
                 </div>
               ))}
             </section>
@@ -159,7 +174,7 @@ export default function PublicCVPage() {
 
           {cvData.Certifications?.length > 0 && (
             <section className="mb-4">
-              <h4 className="border-bottom pb-2">Certifications</h4>
+              <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Certifications</h4>
               <ul>
                 {cvData.Certifications.map((cert, i) => (
                   <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
@@ -170,7 +185,7 @@ export default function PublicCVPage() {
 
           {cvData["References (optional)"]?.length > 0 && (
             <section className="mb-4">
-              <h4 className="border-bottom pb-2">References</h4>
+              <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>References</h4>
               {cvData["References (optional)"].map((ref, i) => (
                 <div key={i}>
                   <p><strong>{ref.refName}</strong> - {ref.refPosition}, {ref.refCompany} ({ref.refContact})</p>
