@@ -1,3 +1,4 @@
+// src/app/editcv/page.jsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -27,7 +28,30 @@ export default function EditCVPage() {
   }, [session]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type, checked, files } = e.target;
+
+    if (type === "file" && files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_SIZE = 300;
+          const scale = Math.min(MAX_SIZE / img.width, MAX_SIZE / img.height);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const base64 = canvas.toDataURL("image/jpeg", 0.7);
+          setFormData((prev) => ({ ...prev, [name]: base64 }));
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -61,7 +85,7 @@ export default function EditCVPage() {
     e.preventDefault();
     await setDoc(doc(db, "cvs", session.user.email), {
       ...formData,
-      cvSlug: formData.cvSlug, // preservar slug
+      cvSlug: formData.cvSlug,
     });
     router.push("/dashboard");
   };
@@ -114,6 +138,21 @@ export default function EditCVPage() {
               <label className="form-check-label" htmlFor={key}>
                 I authorize the use of my data to generate a public CV on this platform.
               </label>
+            </div>
+          ) : key === "photo" ? (
+            <div className="mb-3" key={key}>
+              <label className="form-label">Current Profile Photo</label>
+              {value && <div className="mb-2">
+                <img src={value} alt="Current Profile" width="100" height="100" className="rounded-circle" />
+              </div>}
+              <input
+                type="file"
+                accept="image/*"
+                name="photo"
+                className="form-control"
+                onChange={handleChange}
+              />
+              <div className="form-text">Upload a new image to replace the current one.</div>
             </div>
           ) : (typeof value === "string" || typeof value === "number" || typeof value === "boolean") && (
             <div className="mb-3" key={key}>
