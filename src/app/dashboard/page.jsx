@@ -4,15 +4,14 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, deleteDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, deleteDoc } from "firebase/firestore";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [cvExists, setCvExists] = useState(null); // null = loading
   const [cvSlug, setCvSlug] = useState("");
-  const [profileData, setProfileData] = useState({ phone: "", address: "", linkedin: "", photo: "" });
-  const [saving, setSaving] = useState(false);
+  const [cvData, setCvData] = useState(null);
 
   const user = session?.user;
 
@@ -29,20 +28,9 @@ export default function Dashboard() {
           const data = cvSnap.data();
           setCvExists(true);
           setCvSlug(data.cvSlug);
-          setProfileData({
-            phone: data.phone || "",
-            address: data.address || "",
-            linkedin: data.linkedin || "",
-            photo: data.photo || user.image || "",
-          });
+          setCvData(data);
         } else {
           setCvExists(false);
-          setProfileData({
-            phone: "",
-            address: "",
-            linkedin: "",
-            photo: user.image || "",
-          });
         }
       };
 
@@ -68,32 +56,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleProfileChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "photo" && files[0]) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setProfileData((prev) => ({ ...prev, photo: reader.result }));
-      };
-      reader.readAsDataURL(files[0]);
-    } else {
-      setProfileData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const saveProfile = async () => {
-    setSaving(true);
-    try {
-      const ref = doc(db, "cvs", session.user.email);
-      await setDoc(ref, { ...profileData, cvSlug }, { merge: true });
-      alert("Profile updated successfully.");
-    } catch (err) {
-      console.error("Error updating profile:", err);
-      alert("Failed to update profile.");
-    }
-    setSaving(false);
-  };
-
   return (
     <div className="container mt-5 text-dark">
       <div className="row">
@@ -103,34 +65,17 @@ export default function Dashboard() {
             <h5 className="mb-3">General Info</h5>
             <div className="mb-2"><strong>Name:</strong> {user?.name}</div>
             <div className="mb-2"><strong>Email:</strong> {user?.email}</div>
-            <div className="mb-3">
-              <label className="form-label">Phone</label>
-              <input type="text" name="phone" className="form-control" value={profileData.phone} onChange={handleProfileChange} />
+            <div className="mb-2"><strong>Phone:</strong> {cvData?.phone || <em>Not provided</em>}</div>
+            <div className="mb-2"><strong>Address:</strong> {cvData?.location || <em>Not provided</em>}</div>
+            <div className="mt-3">
+              <img
+                src={cvData?.photo || "/default-avatar.png"}
+                alt="Profile"
+                className="rounded-circle"
+                width="100"
+                height="100"
+              />
             </div>
-            <div className="mb-3">
-              <label className="form-label">Address</label>
-              <input type="text" name="address" className="form-control" value={profileData.address} onChange={handleProfileChange} />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">LinkedIn or Portfolio</label>
-              <input type="url" name="linkedin" className="form-control" value={profileData.linkedin} onChange={handleProfileChange} />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Profile Photo</label>
-              <input type="file" name="photo" accept="image/*" className="form-control" onChange={handleProfileChange} />
-              {profileData.photo && (
-                <img
-                  src={profileData.photo}
-                  alt="Profile"
-                  className="rounded-circle mt-3"
-                  width="100"
-                  height="100"
-                />
-              )}
-            </div>
-            <button className="btn btn-success" onClick={saveProfile} disabled={saving}>
-              {saving ? "Saving..." : "Save Profile"}
-            </button>
           </div>
         </div>
 
