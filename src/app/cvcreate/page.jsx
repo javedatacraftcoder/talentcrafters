@@ -18,7 +18,8 @@ const formSchema = {
         { label: "Email Address", name: "email", type: "email", required: true },
         { label: "Phone Number", name: "phone", type: "tel", required: true },
         { label: "City and Country", name: "location", type: "text", required: false },
-        { label: "LinkedIn or Portfolio URL", name: "linkedin", type: "url", required: false }
+        { label: "LinkedIn or Portfolio URL", name: "linkedin", type: "url", required: false },
+        { label: "Upload Profile Photo", name: "photo", type: "file", required: false }
       ]
     },
     {
@@ -108,7 +109,7 @@ export default function CreateCVPage() {
   if (!session) return <p className="text-center mt-5 text-dark">Please log in to create your CV.</p>;
 
   const handleChange = (e, sectionKey, index = null) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type, checked, files } = e.target;
     if (index !== null) {
       setRepeatableSections((prev) => {
         const updated = [...(prev[sectionKey] || [])];
@@ -116,7 +117,15 @@ export default function CreateCVPage() {
         return { ...prev, [sectionKey]: updated };
       });
     } else {
-      setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+      if (type === "file" && files.length > 0) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData((prev) => ({ ...prev, [name]: reader.result }));
+        };
+        reader.readAsDataURL(files[0]);
+      } else {
+        setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+      }
     }
   };
 
@@ -228,6 +237,14 @@ export default function CreateCVPage() {
                       />
                       <label className="form-check-label">{field.label}</label>
                     </div>
+                  ) : field.type === "file" ? (
+                    <input
+                      type="file"
+                      name={field.name}
+                      className="form-control"
+                      accept="image/*"
+                      onChange={(e) => handleChange(e)}
+                    />
                   ) : (
                     <input
                       type={field.type}
