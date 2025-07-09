@@ -1,4 +1,3 @@
-// src/app/cv/[slug]/page.jsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -9,7 +8,7 @@ import { collection, getDocs } from "firebase/firestore";
 import html2pdf from "html2pdf.js";
 
 export default function PublicCVPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { slug } = useParams();
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,12 +28,19 @@ export default function PublicCVPage() {
       const data = found.data();
       const ownerEmail = found.id;
 
-      const isOwner = session?.user?.email === ownerEmail;
       const isPublic = data.dataConsent === true;
+      const isOwner = session?.user?.email === ownerEmail;
 
-      if (!isPublic && !isOwner) {
-        setAccessDenied(true);
-      } else {
+      // Esperar a que NextAuth confirme el estado
+      if (!isPublic && status !== "loading") {
+        if (!isOwner) {
+          setAccessDenied(true);
+        } else {
+          setCvData(data);
+        }
+      }
+
+      if (isPublic || isOwner) {
         setCvData(data);
       }
 
@@ -42,7 +48,7 @@ export default function PublicCVPage() {
     };
 
     fetchData();
-  }, [slug, session]);
+  }, [slug, session, status]);
 
   const handleDownloadPDF = () => {
     const element = printRef.current;
@@ -56,7 +62,7 @@ export default function PublicCVPage() {
     html2pdf().set(opt).from(element).save();
   };
 
-  if (loading) return <p className="text-center mt-5 text-dark">Loading CV...</p>;
+  if (loading || status === "loading") return <p className="text-center mt-5 text-dark">Loading CV...</p>;
   if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
