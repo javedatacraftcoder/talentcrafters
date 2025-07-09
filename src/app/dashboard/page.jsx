@@ -119,10 +119,16 @@ export default function Dashboard() {
                     href={publicURL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn-outline-success"
+                    className="btn btn-outline-success mb-2"
                   >
                     View Public CV
                   </a>
+
+                  {typeof cvData?.views === "number" && (
+                    <p className="text-muted mb-0">
+                      <strong>Public views:</strong> {cvData.views}
+                    </p>
+                  )}
                 </div>
               </>
             ) : (
