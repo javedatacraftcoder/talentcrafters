@@ -3,9 +3,29 @@
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
+  const [profilePhoto, setProfilePhoto] = useState("");
+
+  useEffect(() => {
+    const fetchPhoto = async () => {
+      if (session?.user?.email) {
+        const ref = doc(db, "cvs", session.user.email);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.photo) {
+            setProfilePhoto(data.photo);
+          }
+        }
+      }
+    };
+    fetchPhoto();
+  }, [session]);
 
   return (
     <nav className="navbar navbar-light bg-white shadow-sm px-4">
@@ -30,12 +50,12 @@ export default function Navbar() {
               Dashboard
             </Link>
 
-            {/* Nombre + foto de perfil */}
+            {/* Nombre + foto de perfil (prioriza la de Firestore) */}
             {session?.user && (
               <div className="d-flex align-items-center gap-2">
                 <span className="text-dark fw-medium">{session.user.name}</span>
                 <Image
-                  src={session.user.image || "/default-avatar.png"}
+                  src={profilePhoto || session.user.image || "/default-avatar.png"}
                   alt="Profile"
                   width={32}
                   height={32}
@@ -53,4 +73,3 @@ export default function Navbar() {
     </nav>
   );
 }
-
