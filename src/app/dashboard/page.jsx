@@ -90,11 +90,11 @@ export default function Dashboard() {
                 onChange={updateThemeColor}
               >
                 <option value="">Select a color theme</option>
-                <option value="#0d6efd">Blue (Masculine)</option>
-                <option value="#e83e8c">Pink (Feminine)</option>
-                <option value="#6f42c1">Purple (Unisex)</option>
-                <option value="#198754">Green (Professional)</option>
-                <option value="#fd7e14">Orange (Modern)</option>
+                <option value="#3D74B6">Blue </option>
+                <option value="#FBF5DE">Beige </option>
+                <option value="#819067">Grayish-green </option>
+                <option value="#EBD6FB">Light Violet </option>
+                <option value="#FF6F3C">Orange (Modern)</option>
               </select>
             </div>
 
