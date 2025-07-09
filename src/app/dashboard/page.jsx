@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, deleteDoc, updateDoc } from "firebase/firestore";
+import QRCode from "qrcode.react";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -68,6 +69,9 @@ export default function Dashboard() {
       alert("Failed to update theme color.");
     }
   };
+
+  const whatsappMessage = `Check out my CV: ${publicURL}`;
+  const whatsappURL = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <div className="container mt-5 text-dark">
@@ -153,6 +157,20 @@ export default function Dashboard() {
                   >
                     View Public CV
                   </a>
+
+                  <a
+                    href={whatsappURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-success mb-2"
+                  >
+                    Share on WhatsApp
+                  </a>
+
+                  <div className="mb-3">
+                    <label className="form-label">QR Code</label>
+                    <QRCode value={publicURL} size={128} />
+                  </div>
 
                   {typeof cvData?.views === "number" && (
                     <p className="text-muted mb-0">

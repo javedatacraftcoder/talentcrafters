@@ -56,7 +56,7 @@ export default function PublicCVPage() {
   const handleDownloadPDF = () => {
     const element = printRef.current;
     const opt = {
-      margin: 0.5,
+      margin: 0,
       filename: `${cvData.fullName}-cv.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
@@ -69,11 +69,17 @@ export default function PublicCVPage() {
   if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
-  const themeColor = cvData.themeColor || "#0d6efd"; // Default to Bootstrap blue
+  const themeColor = cvData.themeColor || "#0d6efd";
 
   return (
     <div className="container my-5 text-dark">
-      <div className="row shadow rounded overflow-hidden">
+      <div className="text-end mb-3">
+        <button className="btn btn-success btn-sm" onClick={handleDownloadPDF}>
+          Download PDF
+        </button>
+      </div>
+
+      <div className="row shadow rounded overflow-hidden" ref={printRef}>
         {/* Side panel */}
         <div className="col-md-4 text-white py-4 px-3" style={{ backgroundColor: themeColor }}>
           {cvData.photo && (
@@ -118,13 +124,10 @@ export default function PublicCVPage() {
           )}
           <hr className="border-light" />
           <p className="small">Views: {cvData.views}</p>
-          <button className="btn btn-outline-light btn-sm mt-2" onClick={handleDownloadPDF}>
-            Download PDF
-          </button>
         </div>
 
         {/* Main panel */}
-        <div className="col-md-8 bg-white p-4" ref={printRef}>
+        <div className="col-md-8 bg-white p-4">
           <h4 className="pb-2 mb-4 border-bottom border-3" style={{ borderColor: themeColor }}>Professional Summary</h4>
           <p>{cvData.summary}</p>
 
