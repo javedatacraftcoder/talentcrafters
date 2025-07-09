@@ -110,6 +110,29 @@ export default function CreateCVPage() {
 
   const handleChange = (e, sectionKey, index = null) => {
     const { name, value, type, checked, files } = e.target;
+
+    if (type === "file" && files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_SIZE = 300;
+          const scale = Math.min(MAX_SIZE / img.width, MAX_SIZE / img.height);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const base64 = canvas.toDataURL("image/jpeg", 0.7);
+          setFormData((prev) => ({ ...prev, [name]: base64 }));
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
     if (index !== null) {
       setRepeatableSections((prev) => {
         const updated = [...(prev[sectionKey] || [])];
@@ -117,15 +140,7 @@ export default function CreateCVPage() {
         return { ...prev, [sectionKey]: updated };
       });
     } else {
-      if (type === "file" && files.length > 0) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setFormData((prev) => ({ ...prev, [name]: reader.result }));
-        };
-        reader.readAsDataURL(files[0]);
-      } else {
-        setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
-      }
+      setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
     }
   };
 
@@ -237,14 +252,6 @@ export default function CreateCVPage() {
                       />
                       <label className="form-check-label">{field.label}</label>
                     </div>
-                  ) : field.type === "file" ? (
-                    <input
-                      type="file"
-                      name={field.name}
-                      className="form-control"
-                      accept="image/*"
-                      onChange={(e) => handleChange(e)}
-                    />
                   ) : (
                     <input
                       type={field.type}
