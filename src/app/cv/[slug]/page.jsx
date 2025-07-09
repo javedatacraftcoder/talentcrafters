@@ -27,16 +27,20 @@ export default function PublicCVPage() {
       }
 
       const data = found.data();
-      const userEmail = found.id;
+      const ownerEmail = found.id;
 
-      // Verifica privacidad
-      if (!data.dataConsent && session?.user?.email !== userEmail) {
+      const isOwner = session?.user?.email === ownerEmail;
+      const isPublic = data.dataConsent === true;
+
+      if (!isPublic && !isOwner) {
         setAccessDenied(true);
       } else {
         setCvData(data);
       }
+
       setLoading(false);
     };
+
     fetchData();
   }, [slug, session]);
 
@@ -62,7 +66,11 @@ export default function PublicCVPage() {
         <div>
           <h1 className="fw-bold m-0">{cvData.fullName}</h1>
           <p className="m-0">{cvData.location} | {cvData.phone} | {cvData.email}</p>
-          {cvData.linkedin && <a href={cvData.linkedin} target="_blank" className="btn btn-outline-primary btn-sm mt-1">Portfolio</a>}
+          {cvData.linkedin && (
+            <a href={cvData.linkedin} target="_blank" className="btn btn-outline-primary btn-sm mt-1">
+              Portfolio
+            </a>
+          )}
         </div>
         <button className="btn btn-success" onClick={handleDownloadPDF}>Download PDF</button>
       </div>

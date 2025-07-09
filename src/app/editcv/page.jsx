@@ -1,4 +1,3 @@
-// src/app/edit-cv/page.jsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -62,7 +61,7 @@ export default function EditCVPage() {
     e.preventDefault();
     await setDoc(doc(db, "cvs", session.user.email), {
       ...formData,
-      cvSlug: formData.cvSlug, // ⬅️ preserva el slug si ya existe
+      cvSlug: formData.cvSlug, // preservar slug
     });
     router.push("/dashboard");
   };
@@ -101,6 +100,20 @@ export default function EditCVPage() {
               <button type="button" className="btn btn-sm btn-primary" onClick={() => addRepeatableEntry(key)}>
                 + Add {key.replace(/([A-Z])/g, ' $1')}
               </button>
+            </div>
+          ) : key === "dataConsent" ? (
+            <div className="form-check mb-3" key={key}>
+              <input
+                className="form-check-input"
+                type="checkbox"
+                name={key}
+                id={key}
+                checked={!!value}
+                onChange={handleChange}
+              />
+              <label className="form-check-label" htmlFor={key}>
+                I authorize the use of my data to generate a public CV on this platform.
+              </label>
             </div>
           ) : (typeof value === "string" || typeof value === "number" || typeof value === "boolean") && (
             <div className="mb-3" key={key}>
