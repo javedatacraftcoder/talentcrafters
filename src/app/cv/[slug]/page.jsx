@@ -99,8 +99,86 @@ export default function PublicCVPage() {
           <p>{cvData.summary}</p>
         </section>
 
-        {/* Resto de secciones igual */}
-        {/* ... */}
+        {cvData["Work Experience"]?.length > 0 && (
+          <section className="mb-4">
+            <h4>Work Experience</h4>
+            {cvData["Work Experience"].map((job, i) => (
+              <div key={i} className="mb-3">
+                <h6 className="mb-1">{job.jobTitle} at {job.company}</h6>
+                <small>{job.startDate} – {job.endDate || "Present"} | {job.jobLocation}</small>
+                <p className="mb-1">{job.description}</p>
+                {job.tools && <small><strong>Tools:</strong> {job.tools}</small>}
+              </div>
+            ))}
+          </section>
+        )}
+
+        {cvData.Education?.length > 0 && (
+          <section className="mb-4">
+            <h4>Education</h4>
+            {cvData.Education.map((edu, i) => (
+              <div key={i} className="mb-3">
+                <h6 className="mb-1">{edu.degree} - {edu.institution}</h6>
+                <small>{edu.educationStart} – {edu.educationEnd} | {edu.educationLocation}</small>
+                {edu.achievements && <p className="mb-1">{edu.achievements}</p>}
+              </div>
+            ))}
+          </section>
+        )}
+
+        {cvData.Projects?.length > 0 && (
+          <section className="mb-4">
+            <h4>Projects</h4>
+            {cvData.Projects.map((proj, i) => (
+              <div key={i} className="mb-3">
+                <h6 className="mb-1">{proj.projectName}</h6>
+                <p className="mb-1">{proj.projectDescription}</p>
+                {proj.projectLink && <a href={proj.projectLink} target="_blank">View Project</a>}
+              </div>
+            ))}
+          </section>
+        )}
+
+        {cvData.Skills && (
+          <section className="mb-4">
+            <h4>Skills</h4>
+            <p><strong>Technical:</strong> {cvData.technicalSkills}</p>
+            {cvData.softSkills && <p><strong>Soft:</strong> {cvData.softSkills}</p>}
+          </section>
+        )}
+
+        {cvData.Languages?.length > 0 && (
+          <section className="mb-4">
+            <h4>Languages</h4>
+            <ul>
+              {cvData.Languages.map((lang, i) => (
+                <li key={i}>{lang.language} – {lang.level}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {cvData.Certifications?.length > 0 && (
+          <section className="mb-4">
+            <h4>Certifications</h4>
+            <ul>
+              {cvData.Certifications.map((cert, i) => (
+                <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {cvData["References (optional)"]?.length > 0 && (
+          <section className="mb-4">
+            <h4>References</h4>
+            {cvData["References (optional)"].map((ref, i) => (
+              <div key={i}>
+                <p><strong>{ref.refName}</strong> - {ref.refPosition}, {ref.refCompany} ({ref.refContact})</p>
+              </div>
+            ))}
+          </section>
+        )}
       </div>
     </div>
   );
