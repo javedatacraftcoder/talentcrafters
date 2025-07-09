@@ -91,9 +91,9 @@ export default function Dashboard() {
               >
                 <option value="">Select a color theme</option>
                 <option value="#3D74B6">Blue </option>
-                <option value="#FBF5DE">Beige </option>
+                <option value="#7F8CAA">Gray </option>
                 <option value="#819067">Grayish-green </option>
-                <option value="#EBD6FB">Light Violet </option>
+                <option value="#725CAD">Violet </option>
                 <option value="#FF6F3C">Orange (Modern)</option>
               </select>
             </div>
