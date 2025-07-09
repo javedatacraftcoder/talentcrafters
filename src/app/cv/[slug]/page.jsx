@@ -1,43 +1,59 @@
-// src/app/cv/[username]/page.jsx
+// src/app/cv/[slug]/page.jsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import html2pdf from "html2pdf.js";
 
 export default function PublicCVPage() {
+  const { data: session } = useSession();
   const { slug } = useParams();
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
   const printRef = useRef();
 
   useEffect(() => {
     const fetchData = async () => {
       const cvsSnap = await getDocs(collection(db, "cvs"));
       const found = cvsSnap.docs.find((doc) => doc.data().cvSlug === slug);
-      if (found) {
-        setCvData(found.data());
+
+      if (!found) {
+        setLoading(false);
+        return;
+      }
+
+      const data = found.data();
+      const userEmail = found.id;
+
+      // Verifica privacidad
+      if (!data.dataConsent && session?.user?.email !== userEmail) {
+        setAccessDenied(true);
+      } else {
+        setCvData(data);
       }
       setLoading(false);
     };
     fetchData();
-  }, [slug]); //username
+  }, [slug, session]);
 
   const handleDownloadPDF = () => {
     const element = printRef.current;
     const opt = {
       margin: 0.5,
       filename: `${cvData.fullName}-cv.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
+      image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
     html2pdf().set(opt).from(element).save();
   };
 
   if (loading) return <p className="text-center mt-5 text-dark">Loading CV...</p>;
+  if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
   return (
