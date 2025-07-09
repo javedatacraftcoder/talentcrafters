@@ -86,6 +86,23 @@ export default function Dashboard() {
             {cvExists ? (
               <>
                 <p>Your CV is ready.</p>
+
+                {/* Estado de privacidad */}
+                <p className="mb-1">
+                  <strong>Status:</strong>{" "}
+                  {cvData?.dataConsent ? (
+                    <span className="text-success">Public ✅</span>
+                  ) : (
+                    <span className="text-danger">Private 🔒</span>
+                  )}
+                </p>
+
+                {!cvData?.dataConsent && (
+                  <small className="text-muted d-block mb-3">
+                    To make your CV public, go to "Edit CV" and check the consent box.
+                  </small>
+                )}
+
                 <a href="/editcv" className="btn btn-primary me-2">Edit CV</a>
                 <button onClick={handleDeleteCV} className="btn btn-danger me-2">
                   Delete CV
