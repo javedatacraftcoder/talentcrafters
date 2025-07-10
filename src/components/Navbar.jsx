@@ -28,47 +28,67 @@ export default function Navbar() {
   }, [session]);
 
   return (
-    <nav className="navbar navbar-light bg-white shadow-sm px-4">
-      <Link href="/" className="navbar-brand fw-bold text-dark">
-        Talent Crafters
-      </Link>
-
-      <div className="d-flex align-items-center gap-3">
-        <Link href="/" className="btn btn-outline-secondary">
-          Home
+    <nav className="navbar navbar-expand-md navbar-light bg-white shadow-sm px-4">
+      <div className="container-fluid">
+        <Link href="/" className="navbar-brand fw-bold text-dark">
+          Talent Crafters
         </Link>
 
-        {status === "unauthenticated" && (
-          <Link href="/login" className="btn btn-outline-primary">
-            Login
-          </Link>
-        )}
+        {/* Botón hamburguesa para móviles */}
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarMenu"
+          aria-controls="navbarMenu"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-        {status === "authenticated" && (
-          <>
-            <Link href="/dashboard" className="btn btn-outline-primary">
-              Dashboard
+        {/* Contenido colapsable */}
+        <div className="collapse navbar-collapse" id="navbarMenu">
+          <div className="ms-auto d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 mt-3 mt-md-0">
+            <Link href="/" className="btn btn-outline-secondary w-100 w-md-auto">
+              Home
             </Link>
 
-            {/* Nombre + foto de perfil (prioriza la de Firestore) */}
-            {session?.user && (
-              <div className="d-flex align-items-center gap-2">
-                <span className="text-dark fw-medium">{session.user.name}</span>
-                <Image
-                  src={profilePhoto || session.user.image || "/default-avatar.png"}
-                  alt="Profile"
-                  width={32}
-                  height={32}
-                  className="rounded-circle"
-                />
-              </div>
+            {status === "unauthenticated" && (
+              <Link href="/login" className="btn btn-outline-primary w-100 w-md-auto">
+                Login
+              </Link>
             )}
 
-            <button onClick={() => signOut()} className="btn btn-outline-danger">
-              Logout
-            </button>
-          </>
-        )}
+            {status === "authenticated" && (
+              <>
+                <Link href="/dashboard" className="btn btn-outline-primary w-100 w-md-auto">
+                  Dashboard
+                </Link>
+
+                {session?.user && (
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="text-dark fw-medium">{session.user.name}</span>
+                    <Image
+                      src={profilePhoto || session.user.image || "/default-avatar.png"}
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                      className="rounded-circle"
+                    />
+                  </div>
+                )}
+
+                <button
+                  onClick={() => signOut()}
+                  className="btn btn-outline-danger w-100 w-md-auto"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </nav>
   );
