@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, deleteDoc, updateDoc } from "firebase/firestore";
-import QRCode from "qrcode.react";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -84,7 +83,7 @@ export default function Dashboard() {
             <div className="mb-2"><strong>Phone:</strong> {cvData?.phone || <em>Not provided</em>}</div>
             <div className="mb-2"><strong>Address:</strong> {cvData?.location || <em>Not provided</em>}</div>
 
-            {/* Nuevo selector de color */}
+            {/* Selector de color */}
             <div className="mb-2">
               <label className="form-label"><strong>Theme Color:</strong></label>
               <select
@@ -160,22 +159,14 @@ export default function Dashboard() {
                   </a>
 
                   {publicURL && (
-                    <>
-                      <a
-                        href={whatsappURL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-success mb-2"
-                      >
-                        Share on WhatsApp
-                      </a>
-
-                      <div className="mb-3 text-center">
-                        <label className="form-label">QR Code</label>
-                        <QRCode value={publicURL} size={128} />
-                        <p className="small text-muted mt-2">Scan to view your CV</p>
-                      </div>
-                    </>
+                    <a
+                      href={whatsappURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-success mb-2"
+                    >
+                      Share on WhatsApp
+                    </a>
                   )}
 
                   {typeof cvData?.views === "number" && (
