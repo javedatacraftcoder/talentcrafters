@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
+import "bootstrap/dist/js/bootstrap.bundle.min.js"; // 👈 aquí
+
 export default function Navbar() {
   const { data: session, status } = useSession();
   const [profilePhoto, setProfilePhoto] = useState("");
