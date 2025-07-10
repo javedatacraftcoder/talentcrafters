@@ -39,12 +39,17 @@ export default function Dashboard() {
     }
   }, [status, user, router]);
 
-  if (status === "loading" || cvExists === null) return <p className="text-center mt-5 text-dark">Loading...</p>;
+  if (status === "loading" || cvExists === null)
+    return <p className="text-center mt-5 text-dark">Loading...</p>;
 
-  const publicURL = `https://talentcrafters.datacraftcoders.com/cv/${cvSlug}`;
+  const publicURL = cvSlug
+    ? `https://talentcrafters.datacraftcoders.com/cv/${cvSlug}`
+    : "";
 
   const handleDeleteCV = async () => {
-    const confirmed = window.confirm("Are you sure you want to delete your CV? This action cannot be undone.");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your CV? This action cannot be undone."
+    );
     if (!confirmed) return;
 
     try {
@@ -94,10 +99,10 @@ export default function Dashboard() {
                 onChange={updateThemeColor}
               >
                 <option value="">Select a color theme</option>
-                <option value="#3D74B6">Blue </option>
-                <option value="#7F8CAA">Gray </option>
-                <option value="#819067">Grayish-green </option>
-                <option value="#725CAD">Violet </option>
+                <option value="#3D74B6">Blue</option>
+                <option value="#7F8CAA">Gray</option>
+                <option value="#819067">Grayish-green</option>
+                <option value="#725CAD">Violet</option>
                 <option value="#FF6F3C">Orange (Modern)</option>
               </select>
             </div>
@@ -141,6 +146,7 @@ export default function Dashboard() {
                 <button onClick={handleDeleteCV} className="btn btn-danger me-2">
                   Delete CV
                 </button>
+
                 <div className="mt-3">
                   <label className="form-label">Public URL</label>
                   <input
@@ -149,6 +155,7 @@ export default function Dashboard() {
                     value={publicURL}
                     readOnly
                   />
+
                   <a
                     href={publicURL}
                     target="_blank"
@@ -158,19 +165,24 @@ export default function Dashboard() {
                     View Public CV
                   </a>
 
-                  <a
-                    href={whatsappURL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-success mb-2"
-                  >
-                    Share on WhatsApp
-                  </a>
+                  {publicURL && (
+                    <>
+                      <a
+                        href={whatsappURL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-success mb-2"
+                      >
+                        Share on WhatsApp
+                      </a>
 
-                  <div className="mb-3">
-                    <label className="form-label">QR Code</label>
-                    <QRCode value={publicURL} size={128} />
-                  </div>
+                      <div className="mb-3 text-center">
+                        <label className="form-label">QR Code</label>
+                        <QRCode value={publicURL} size={128} />
+                        <p className="small text-muted mt-2">Scan to view your CV</p>
+                      </div>
+                    </>
+                  )}
 
                   {typeof cvData?.views === "number" && (
                     <p className="text-muted mb-0">
