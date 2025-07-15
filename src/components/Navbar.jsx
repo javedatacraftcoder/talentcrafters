@@ -34,9 +34,9 @@ export default function Navbar() {
       </Link>
 
       <div className="d-flex align-items-center gap-3">
-        <Link href="/" className="btn btn-outline-secondary">
+        <a href="https://talentcraft.datacraftcoders.com" className="btn btn-outline-secondary">
           Home
-        </Link>
+        </a>
 
         {status === "unauthenticated" && (
           <Link href="/login" className="btn btn-outline-primary">
