@@ -27,6 +27,7 @@ export default function PublicCVPage() {
 
       const data = found.data();
       const ownerEmail = found.id;
+
       const isPublic = data.dataConsent === true;
       const isOwner = session?.user?.email === ownerEmail;
 
@@ -72,143 +73,118 @@ export default function PublicCVPage() {
 
   return (
     <div className="container my-5">
-      <div className="shadow rounded overflow-hidden bg-white p-0" style={{ maxWidth: "960px", margin: "0 auto" }}>
-        {/* Top panel */}
+      <div className="mx-auto shadow-lg rounded bg-white p-0" style={{ maxWidth: "900px" }} ref={printRef}>
+        {/* Header superior */}
         <div className="d-flex">
-          {/* Sidebar */}
-          <div className="bg-light d-flex flex-column align-items-center justify-content-center px-3 py-4 position-relative" style={{ width: "200px" }}>
-            {cvData.photo && (
-              <img
-                src={cvData.photo}
-                alt="Profile"
-                className="rounded-circle border border-white mb-3"
-                width="120"
-                height="120"
-              />
-            )}
+          {/* Foto + franja */}
+          <div className="position-relative text-center p-4" style={{ width: "250px" }}>
+            <img
+              src={cvData.photo || "/default-avatar.png"}
+              alt="Profile"
+              className="rounded-circle border border-2 mb-3"
+              width={130}
+              height={130}
+            />
             <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                width: "100%",
-                height: "20px",
-                backgroundColor: themeColor,
-              }}
+              style={{ width: "8px", height: "80px", backgroundColor: themeColor, margin: "10px auto 0" }}
             ></div>
           </div>
 
-          {/* Header info */}
-          <div className="flex-grow-1 p-4">
+          {/* Info personal */}
+          <div className="flex-grow-1 d-flex flex-column justify-content-center text-dark">
             <h2 className="fw-bold mb-2">{cvData.fullName}</h2>
             <p className="mb-1"><strong>Email:</strong> {cvData.email}</p>
             <p className="mb-1"><strong>Phone:</strong> {cvData.phone}</p>
             <p className="mb-1"><strong>Address:</strong> {cvData.location}</p>
-            {cvData.linkedin && (
-              <a
-                href={cvData.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-outline-primary btn-sm mt-2"
-              >
-                View LinkedIn
-              </a>
+          </div>
+        </div>
+
+        <hr className="m-0" />
+
+        {/* Cuerpo del CV */}
+        <div className="row p-4">
+          {/* Columna izquierda con títulos */}
+          <div className="col-md-4 text-end pe-4 text-dark">
+            {cvData.summary && <p className="fw-bold mb-4">Professional Summary</p>}
+            {cvData["Work Experience"]?.length > 0 && <p className="fw-bold mb-4">Work Experience</p>}
+            {cvData.Education?.length > 0 && <p className="fw-bold mb-4">Education</p>}
+            {cvData.Projects?.length > 0 && <p className="fw-bold mb-4">Projects</p>}
+            {cvData.Certifications?.length > 0 && <p className="fw-bold mb-4">Certifications</p>}
+            {cvData["References (optional)"]?.length > 0 && <p className="fw-bold mb-4">References</p>}
+          </div>
+
+          {/* Columna derecha con contenido */}
+          <div className="col-md-8 text-dark">
+            {cvData.summary && (
+              <div className="mb-4">
+                <p>{cvData.summary}</p>
+              </div>
+            )}
+
+            {cvData["Work Experience"]?.length > 0 && (
+              <div className="mb-4">
+                {cvData["Work Experience"].map((job, i) => (
+                  <div key={i} className="mb-3">
+                    <h6>{job.jobTitle} at {job.company}</h6>
+                    <small className="text-muted">{job.startDate} – {job.endDate || "Present"} | {job.jobLocation}</small>
+                    <p>{job.description}</p>
+                    {job.tools && <small><strong>Tools:</strong> {job.tools}</small>}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {cvData.Education?.length > 0 && (
+              <div className="mb-4">
+                {cvData.Education.map((edu, i) => (
+                  <div key={i} className="mb-3">
+                    <h6>{edu.degree} - {edu.institution}</h6>
+                    <small className="text-muted">{edu.educationStart} – {edu.educationEnd} | {edu.educationLocation}</small>
+                    {edu.achievements && <p>{edu.achievements}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {cvData.Projects?.length > 0 && (
+              <div className="mb-4">
+                {cvData.Projects.map((proj, i) => (
+                  <div key={i} className="mb-3">
+                    <h6>{proj.projectName}</h6>
+                    <p>{proj.projectDescription}</p>
+                    {proj.projectLink && <a href={proj.projectLink} target="_blank">View Project</a>}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {cvData.Certifications?.length > 0 && (
+              <div className="mb-4">
+                <ul>
+                  {cvData.Certifications.map((cert, i) => (
+                    <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {cvData["References (optional)"]?.length > 0 && (
+              <div className="mb-4">
+                {cvData["References (optional)"].map((ref, i) => (
+                  <div key={i}>
+                    <p><strong>{ref.refName}</strong> - {ref.refPosition}, {ref.refCompany} ({ref.refContact})</p>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
+      </div>
 
-        {/* Main CV content */}
-        <div className="p-4 text-dark" ref={printRef}>
-          <div className="row">
-            <div className="col-md-3 text-end pe-3">
-              <ul className="list-unstyled">
-                {cvData.summary && <li className="fw-bold mb-4">Summary</li>}
-                {cvData["Work Experience"]?.length > 0 && <li className="fw-bold mb-4">Work</li>}
-                {cvData.Education?.length > 0 && <li className="fw-bold mb-4">Education</li>}
-                {cvData.Projects?.length > 0 && <li className="fw-bold mb-4">Projects</li>}
-                {cvData.Certifications?.length > 0 && <li className="fw-bold mb-4">Certs</li>}
-                {cvData["References (optional)"]?.length > 0 && <li className="fw-bold">Refs</li>}
-              </ul>
-            </div>
-
-            <div className="col-md-9">
-              {cvData.summary && (
-                <section className="mb-4">
-                  <h5 className="fw-bold">Professional Summary</h5>
-                  <p>{cvData.summary}</p>
-                </section>
-              )}
-
-              {cvData["Work Experience"]?.length > 0 && (
-                <section className="mb-4">
-                  <h5 className="fw-bold">Work Experience</h5>
-                  {cvData["Work Experience"].map((job, i) => (
-                    <div key={i} className="mb-2">
-                      <strong>{job.jobTitle}</strong> at <strong>{job.company}</strong>
-                      <br />
-                      <small className="text-muted">{job.startDate} – {job.endDate || "Present"} | {job.jobLocation}</small>
-                      <p>{job.description}</p>
-                      {job.tools && <p><small><strong>Tools:</strong> {job.tools}</small></p>}
-                    </div>
-                  ))}
-                </section>
-              )}
-
-              {cvData.Education?.length > 0 && (
-                <section className="mb-4">
-                  <h5 className="fw-bold">Education</h5>
-                  {cvData.Education.map((edu, i) => (
-                    <div key={i} className="mb-2">
-                      <strong>{edu.degree}</strong> - {edu.institution}
-                      <br />
-                      <small className="text-muted">{edu.educationStart} – {edu.educationEnd} | {edu.educationLocation}</small>
-                      {edu.achievements && <p>{edu.achievements}</p>}
-                    </div>
-                  ))}
-                </section>
-              )}
-
-              {cvData.Projects?.length > 0 && (
-                <section className="mb-4">
-                  <h5 className="fw-bold">Projects</h5>
-                  {cvData.Projects.map((proj, i) => (
-                    <div key={i} className="mb-2">
-                      <strong>{proj.projectName}</strong>
-                      <p>{proj.projectDescription}</p>
-                      {proj.projectLink && (
-                        <a href={proj.projectLink} target="_blank" rel="noopener noreferrer">
-                          View Project
-                        </a>
-                      )}
-                    </div>
-                  ))}
-                </section>
-              )}
-
-              {cvData.Certifications?.length > 0 && (
-                <section className="mb-4">
-                  <h5 className="fw-bold">Certifications</h5>
-                  <ul>
-                    {cvData.Certifications.map((cert, i) => (
-                      <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
-                    ))}
-                  </ul>
-                </section>
-              )}
-
-              {cvData["References (optional)"]?.length > 0 && (
-                <section className="mb-4">
-                  <h5 className="fw-bold">References</h5>
-                  {cvData["References (optional)"].map((ref, i) => (
-                    <div key={i}>
-                      <p><strong>{ref.refName}</strong> - {ref.refPosition}, {ref.refCompany} ({ref.refContact})</p>
-                    </div>
-                  ))}
-                </section>
-              )}
-            </div>
-          </div>
-        </div>
+      <div className="text-center mt-4">
+        <button className="btn btn-primary" onClick={handleDownloadPDF}>
+          Download PDF
+        </button>
       </div>
     </div>
   );
