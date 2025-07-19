@@ -70,6 +70,7 @@ export default function PublicCVPage() {
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
   const themeColor = cvData.themeColor || "#0d6efd";
+  const textColor = "#1a1a1a";
 
   return (
     <div className="bg-white py-5">
@@ -79,7 +80,7 @@ export default function PublicCVPage() {
         </button>
       </div>
 
-      <div className="mx-auto shadow-lg rounded overflow-hidden" ref={printRef} style={{ maxWidth: "960px", background: "#fff" }}>
+      <div className="mx-auto shadow-lg rounded overflow-hidden" ref={printRef} style={{ maxWidth: "960px", background: "#fff", boxShadow: "0 0 25px rgba(0, 0, 0, 0.15)" }}>
         <div className="row g-0">
           {/* Side panel */}
           <div className="col-md-4 text-white py-4 px-3" style={{ backgroundColor: themeColor }}>
@@ -87,9 +88,9 @@ export default function PublicCVPage() {
               <img src={cvData.photo} alt="Profile" className="rounded-circle mb-3 bg-white p-1" width="120" height="120" />
             )}
             <h3 className="fw-bold">{cvData.fullName}</h3>
-            <p className="mb-1">{cvData.location}</p>
-            <p className="mb-1">📞 {cvData.phone}</p>
-            <p className="mb-3">📧 {cvData.email}</p>
+            <p className="mb-1"><strong>📍 Address:</strong> {cvData.location}</p>
+            <p className="mb-1"><strong>📞 Phone:</strong> {cvData.phone}</p>
+            <p className="mb-3"><strong>📧 Email:</strong> {cvData.email}</p>
             {cvData.linkedin && (
               <a
                 href={cvData.linkedin}
@@ -128,7 +129,7 @@ export default function PublicCVPage() {
           </div>
 
           {/* Main panel */}
-          <div className="col-md-8 bg-white p-4">
+          <div className="col-md-8 bg-white p-4" style={{ color: textColor }}>
             <h4 className="pb-2 mb-4 border-bottom border-3" style={{ borderColor: themeColor }}>Professional Summary</h4>
             <p>{cvData.summary}</p>
 
@@ -203,3 +204,4 @@ export default function PublicCVPage() {
     </div>
   );
 }
+
