@@ -1,4 +1,3 @@
-// src/app/cv/[slug]/page.jsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -28,7 +27,6 @@ export default function PublicCVPage() {
 
       const data = found.data();
       const ownerEmail = found.id;
-
       const isPublic = data.dataConsent === true;
       const isOwner = session?.user?.email === ownerEmail;
 
@@ -70,76 +68,57 @@ export default function PublicCVPage() {
   if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
-  const themeColor = cvData.themeColor || "#0d6efd"; // Bootstrap blue
+  const themeColor = cvData.themeColor || "#0d6efd";
 
   return (
-    <div className="container py-5 bg-white">
-      <div className="mx-auto shadow-lg rounded-3 overflow-hidden" style={{ maxWidth: "900px" }}>
-        <div className="row g-0" ref={printRef}>
-          {/* Sidebar */}
-          <div className="col-md-4 text-white px-4 py-5" style={{ backgroundColor: themeColor }}>
-            {cvData.photo && (
-              <img src={cvData.photo} alt="Profile" className="rounded-circle bg-white p-1 mb-3" width="120" height="120" />
-            )}
-            <h3 className="fw-bold">{cvData.fullName}</h3>
-            <hr className="border-light" />
-            <p className="mb-1"><strong>Phone:</strong></p>
-            <p>{cvData.phone}</p>
-            <p className="mb-1"><strong>Email:</strong></p>
-            <p>{cvData.email}</p>
-            <p className="mb-1"><strong>Address:</strong></p>
-            <p>{cvData.location}</p>
-            {cvData.linkedin && (
-              <a
-                href={cvData.linkedin}
-                target="_blank"
-                className="btn btn-light btn-sm fw-bold mb-3"
-                rel="noopener noreferrer"
-              >
-                View LinkedIn
-              </a>
-            )}
+    <div className="container my-5">
+      <div className="bg-white shadow-lg rounded p-0 overflow-hidden" ref={printRef}>
+        {/* Header con imagen + franja */}
+        <div className="text-center position-relative">
+          {cvData.photo && (
+            <img
+              src={cvData.photo}
+              alt="Profile"
+              className="rounded-circle border border-white position-relative z-1"
+              width="120"
+              height="120"
+              style={{ marginTop: "1.5rem" }}
+            />
+          )}
+          <div
+            style={{ backgroundColor: themeColor, height: "20px", marginTop: "-10px" }}
+            className="w-100"
+          ></div>
+          <div className="pt-3 pb-4 px-3">
+            <h3 className="fw-bold mb-1">{cvData.fullName}</h3>
+            <p className="mb-1"><strong>Email:</strong> {cvData.email}</p>
+            <p className="mb-1"><strong>Phone:</strong> {cvData.phone}</p>
+            <p className="mb-0"><strong>Address:</strong> {cvData.location}</p>
+          </div>
+        </div>
 
-            <hr className="border-light" />
+        <hr className="my-0" />
 
-            {cvData.technicalSkills && (
-              <>
-                <h6 className="text-uppercase mt-4">Skills</h6>
-                <p>{cvData.technicalSkills}</p>
-              </>
-            )}
-            {cvData.softSkills && (
-              <>
-                <h6 className="text-uppercase">Soft Skills</h6>
-                <p>{cvData.softSkills}</p>
-              </>
-            )}
-            {cvData.Languages?.length > 0 && (
-              <>
-                <h6 className="text-uppercase">Languages</h6>
-                <ul className="list-unstyled">
-                  {cvData.Languages.map((lang, i) => (
-                    <li key={i}>{lang.language} – {lang.level}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-
-            <hr className="border-light" />
-            <p className="small">Views: {cvData.views}</p>
-            <button className="btn btn-outline-light btn-sm mt-2" onClick={handleDownloadPDF}>
-              Download PDF
-            </button>
+        {/* Cuerpo principal dividido en 2 columnas */}
+        <div className="row p-4 text-dark" style={{ color: "#222" }}>
+          <div className="col-md-4 border-end">
+            {cvData.summary && <p><strong>Summary</strong></p>}
+            {cvData["Work Experience"]?.length > 0 && <p><strong>Work Experience</strong></p>}
+            {cvData.Education?.length > 0 && <p><strong>Education</strong></p>}
+            {cvData.Projects?.length > 0 && <p><strong>Projects</strong></p>}
+            {cvData.Certifications?.length > 0 && <p><strong>Certifications</strong></p>}
+            {cvData["References (optional)"]?.length > 0 && <p><strong>References</strong></p>}
           </div>
 
-          {/* Main content */}
-          <div className="col-md-8 p-5" style={{ color: "#212529", backgroundColor: "#fff" }}>
-            <h4 className="pb-2 mb-4 border-bottom border-3" style={{ borderColor: themeColor }}>Professional Summary</h4>
-            <p>{cvData.summary}</p>
+          <div className="col-md-8">
+            {cvData.summary && (
+              <section className="mb-4">
+                <p>{cvData.summary}</p>
+              </section>
+            )}
 
             {cvData["Work Experience"]?.length > 0 && (
               <section className="mb-4">
-                <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Work Experience</h4>
                 {cvData["Work Experience"].map((job, i) => (
                   <div key={i} className="mb-3">
                     <h6>{job.jobTitle} at {job.company}</h6>
@@ -153,7 +132,6 @@ export default function PublicCVPage() {
 
             {cvData.Education?.length > 0 && (
               <section className="mb-4">
-                <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Education</h4>
                 {cvData.Education.map((edu, i) => (
                   <div key={i} className="mb-3">
                     <h6>{edu.degree} - {edu.institution}</h6>
@@ -166,16 +144,11 @@ export default function PublicCVPage() {
 
             {cvData.Projects?.length > 0 && (
               <section className="mb-4">
-                <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Projects</h4>
                 {cvData.Projects.map((proj, i) => (
                   <div key={i} className="mb-3">
                     <h6>{proj.projectName}</h6>
                     <p>{proj.projectDescription}</p>
-                    {proj.projectLink && (
-                      <a href={proj.projectLink} target="_blank" rel="noopener noreferrer" style={{ color: themeColor }}>
-                        View Project
-                      </a>
-                    )}
+                    {proj.projectLink && <a href={proj.projectLink} target="_blank" rel="noopener noreferrer" style={{ color: themeColor }}>View Project</a>}
                   </div>
                 ))}
               </section>
@@ -183,7 +156,6 @@ export default function PublicCVPage() {
 
             {cvData.Certifications?.length > 0 && (
               <section className="mb-4">
-                <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Certifications</h4>
                 <ul>
                   {cvData.Certifications.map((cert, i) => (
                     <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
@@ -194,15 +166,18 @@ export default function PublicCVPage() {
 
             {cvData["References (optional)"]?.length > 0 && (
               <section className="mb-4">
-                <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>References</h4>
                 {cvData["References (optional)"].map((ref, i) => (
-                  <div key={i}>
-                    <p><strong>{ref.refName}</strong> - {ref.refPosition}, {ref.refCompany} ({ref.refContact})</p>
-                  </div>
+                  <p key={i}><strong>{ref.refName}</strong> - {ref.refPosition}, {ref.refCompany} ({ref.refContact})</p>
                 ))}
               </section>
             )}
           </div>
+        </div>
+
+        <div className="text-center pb-4">
+          <button className="btn btn-outline-dark btn-sm" onClick={handleDownloadPDF}>
+            Download PDF
+          </button>
         </div>
       </div>
     </div>
