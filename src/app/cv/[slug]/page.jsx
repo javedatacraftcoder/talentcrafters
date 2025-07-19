@@ -1,3 +1,4 @@
+// src/app/cv/[slug]/page.jsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -56,7 +57,7 @@ export default function PublicCVPage() {
   const handleDownloadPDF = () => {
     const element = printRef.current;
     const opt = {
-      margin: 0,
+      margin: 0.5,
       filename: `${cvData.fullName}-cv.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
@@ -69,39 +70,38 @@ export default function PublicCVPage() {
   if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
-  const themeColor = cvData.themeColor || "#0d6efd";
-  const textColor = "#1a1a1a";
+  const themeColor = cvData.themeColor || "#0d6efd"; // Bootstrap blue
 
   return (
-    <div className="bg-white py-5">
-      <div className="text-center mb-4">
-        <button className="btn btn-success btn-sm" onClick={handleDownloadPDF}>
-          Download PDF
-        </button>
-      </div>
-
-      <div className="mx-auto shadow-lg rounded overflow-hidden" ref={printRef} style={{ maxWidth: "960px", background: "#fff", boxShadow: "0 0 25px rgba(0, 0, 0, 0.15)" }}>
-        <div className="row g-0">
-          {/* Side panel */}
-          <div className="col-md-4 text-white py-4 px-3" style={{ backgroundColor: themeColor }}>
+    <div className="container py-5 bg-white">
+      <div className="mx-auto shadow-lg rounded-3 overflow-hidden" style={{ maxWidth: "900px" }}>
+        <div className="row g-0" ref={printRef}>
+          {/* Sidebar */}
+          <div className="col-md-4 text-white px-4 py-5" style={{ backgroundColor: themeColor }}>
             {cvData.photo && (
-              <img src={cvData.photo} alt="Profile" className="rounded-circle mb-3 bg-white p-1" width="120" height="120" />
+              <img src={cvData.photo} alt="Profile" className="rounded-circle bg-white p-1 mb-3" width="120" height="120" />
             )}
             <h3 className="fw-bold">{cvData.fullName}</h3>
-            <p className="mb-1"><strong>📍 Address:</strong> {cvData.location}</p>
-            <p className="mb-1"><strong>📞 Phone:</strong> {cvData.phone}</p>
-            <p className="mb-3"><strong>📧 Email:</strong> {cvData.email}</p>
+            <hr className="border-light" />
+            <p className="mb-1"><strong>Phone:</strong></p>
+            <p>{cvData.phone}</p>
+            <p className="mb-1"><strong>Email:</strong></p>
+            <p>{cvData.email}</p>
+            <p className="mb-1"><strong>Address:</strong></p>
+            <p>{cvData.location}</p>
             {cvData.linkedin && (
               <a
                 href={cvData.linkedin}
                 target="_blank"
-                className="btn btn-light btn-sm mb-3 fw-bold"
+                className="btn btn-light btn-sm fw-bold mb-3"
                 rel="noopener noreferrer"
               >
                 View LinkedIn
               </a>
             )}
+
             <hr className="border-light" />
+
             {cvData.technicalSkills && (
               <>
                 <h6 className="text-uppercase mt-4">Skills</h6>
@@ -124,12 +124,16 @@ export default function PublicCVPage() {
                 </ul>
               </>
             )}
+
             <hr className="border-light" />
             <p className="small">Views: {cvData.views}</p>
+            <button className="btn btn-outline-light btn-sm mt-2" onClick={handleDownloadPDF}>
+              Download PDF
+            </button>
           </div>
 
-          {/* Main panel */}
-          <div className="col-md-8 bg-white p-4" style={{ color: textColor }}>
+          {/* Main content */}
+          <div className="col-md-8 p-5" style={{ color: "#212529", backgroundColor: "#fff" }}>
             <h4 className="pb-2 mb-4 border-bottom border-3" style={{ borderColor: themeColor }}>Professional Summary</h4>
             <p>{cvData.summary}</p>
 
@@ -204,4 +208,3 @@ export default function PublicCVPage() {
     </div>
   );
 }
-
