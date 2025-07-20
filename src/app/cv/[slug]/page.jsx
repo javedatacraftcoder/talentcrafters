@@ -11,8 +11,10 @@ export default function PublicCVPage() {
   const { data: session, status } = useSession();
   const { slug } = useParams();
   const [cvData, setCvData] = useState(null);
+  const [translatedCV, setTranslatedCV] = useState(null);
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const printRef = useRef();
 
   useEffect(() => {
@@ -65,92 +67,123 @@ export default function PublicCVPage() {
     html2pdf().set(opt).from(element).save();
   };
 
+  const translateText = async (text, targetLang) => {
+    const res = await fetch("https://libretranslate.de/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        q: text,
+        source: "en",
+        target: targetLang,
+        format: "text",
+      }),
+    });
+    const data = await res.json();
+    return data.translatedText;
+  };
+
+  const handleLanguageChange = async (e) => {
+    const lang = e.target.value;
+    if (!lang || !cvData) return;
+
+    setTranslating(true);
+
+    const fieldsToTranslate = [
+      "summary",
+      "technicalSkills",
+      "softSkills",
+    ];
+
+    const translated = {};
+
+    for (let field of fieldsToTranslate) {
+      if (cvData[field]) {
+        translated[field] = await translateText(cvData[field], lang);
+      }
+    }
+
+    const translateArraySection = async (sectionName, fields) => {
+      if (!cvData[sectionName]) return [];
+      return Promise.all(
+        cvData[sectionName].map(async (item) => {
+          const translatedItem = { ...item };
+          for (let field of fields) {
+            if (item[field]) {
+              translatedItem[field] = await translateText(item[field], lang);
+            }
+          }
+          return translatedItem;
+        })
+      );
+    };
+
+    translated["Work Experience"] = await translateArraySection("Work Experience", ["jobTitle", "company", "jobLocation", "description", "tools"]);
+    translated["Education"] = await translateArraySection("Education", ["degree", "institution", "educationLocation", "achievements"]);
+    translated["Projects"] = await translateArraySection("Projects", ["projectName", "projectDescription"]);
+    translated["Certifications"] = cvData.Certifications || [];
+    translated["References (optional)"] = await translateArraySection("References (optional)", ["refName", "refPosition", "refCompany"]);
+
+    setTranslatedCV({ ...cvData, ...translated });
+    setTranslating(false);
+  };
+
+  const data = translatedCV || cvData;
+
   if (loading || status === "loading") return <p className="text-center mt-5 text-dark">Loading CV...</p>;
   if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
-  const themeColor = cvData.themeColor || "#0d6efd";
+  const themeColor = data.themeColor || "#0d6efd";
   const textColor = "#1a1a1a";
 
   return (
     <div className="bg-white py-5">
       <div className="text-center mb-4">
-        <button className="btn btn-success btn-sm" onClick={handleDownloadPDF}>
+        <button className="btn btn-success btn-sm me-3" onClick={handleDownloadPDF}>
           Download PDF
         </button>
+
+        <select onChange={handleLanguageChange} className="form-select d-inline w-auto" disabled={translating}>
+          <option value="">Translate CV</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+        </select>
       </div>
 
       <div className="mx-auto shadow-lg rounded overflow-hidden" ref={printRef} style={{ maxWidth: "960px", background: "#fff", boxShadow: "0 0 25px rgba(0, 0, 0, 0.15)" }}>
         <div className="row g-0">
-          {/* Side panel */}
           <div className="col-md-4 text-white py-4 px-3" style={{ backgroundColor: themeColor }}>
-            {cvData.photo && (
-              <img src={cvData.photo} alt="Profile" className="rounded-circle mb-3 bg-white p-1" width="120" height="120" />
+            {data.photo && (
+              <img src={data.photo} alt="Profile" className="rounded-circle mb-3 bg-white p-1" width="120" height="120" />
             )}
-            <h3 className="fw-bold">{cvData.fullName}</h3>
-            <p className="mb-1"><strong>📍 Address:</strong> {cvData.location}</p>
-            <p className="mb-1"><strong>📞 Phone:</strong> {cvData.phone}</p>
-            <p className="mb-3"><strong>📧 Email:</strong> {cvData.email}</p>
-            {cvData.linkedin && (
-              <a
-                href={cvData.linkedin}
-                target="_blank"
-                className="btn btn-light btn-sm mb-3 fw-bold"
-                rel="noopener noreferrer"
-              >
-                View LinkedIn
-              </a>
-            )}
-            <hr className="border-light" />
-            {cvData.technicalSkills && (
-              <>
-                <h6 className="text-uppercase mt-4">Skills</h6>
-                <p>{cvData.technicalSkills}</p>
-              </>
-            )}
-            {cvData.softSkills && (
-              <>
-                <h6 className="text-uppercase">Soft Skills</h6>
-                <p>{cvData.softSkills}</p>
-              </>
-            )}
-            {cvData.Languages?.length > 0 && (
-              <>
-                <h6 className="text-uppercase">Languages</h6>
-                <ul className="list-unstyled">
-                  {cvData.Languages.map((lang, i) => (
-                    <li key={i}>{lang.language} – {lang.level}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-            <hr className="border-light" />
-            <p className="small">Views: {cvData.views}</p>
+            <h3 className="fw-bold">{data.fullName}</h3>
+            <p className="mb-1"><strong>📍 Address:</strong> {data.location}</p>
+            <p className="mb-1"><strong>📞 Phone:</strong> {data.phone}</p>
+            <p className="mb-3"><strong>📧 Email:</strong> {data.email}</p>
           </div>
 
-          {/* Main panel */}
           <div className="col-md-8 bg-white p-4" style={{ color: textColor }}>
             <h4 className="pb-2 mb-4 border-bottom border-3" style={{ borderColor: themeColor }}>Professional Summary</h4>
-            <p>{cvData.summary}</p>
+            <p>{data.summary}</p>
 
-            {cvData["Work Experience"]?.length > 0 && (
+            {data["Work Experience"]?.length > 0 && (
               <section className="mb-4">
                 <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Work Experience</h4>
-                {cvData["Work Experience"].map((job, i) => (
+                {data["Work Experience"].map((job, i) => (
                   <div key={i} className="mb-3">
                     <h6>{job.jobTitle} at {job.company}</h6>
                     <small className="text-muted">{job.startDate} – {job.endDate || "Present"} | {job.jobLocation}</small>
                     <p>{job.description}</p>
-                    {job.tools && <small><strong>Tools:</strong> {job.tools}</small>}
                   </div>
                 ))}
               </section>
             )}
 
-            {cvData.Education?.length > 0 && (
+            {data.Education?.length > 0 && (
               <section className="mb-4">
                 <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Education</h4>
-                {cvData.Education.map((edu, i) => (
+                {data.Education.map((edu, i) => (
                   <div key={i} className="mb-3">
                     <h6>{edu.degree} - {edu.institution}</h6>
                     <small className="text-muted">{edu.educationStart} – {edu.educationEnd} | {edu.educationLocation}</small>
@@ -160,40 +193,13 @@ export default function PublicCVPage() {
               </section>
             )}
 
-            {cvData.Projects?.length > 0 && (
+            {data.Projects?.length > 0 && (
               <section className="mb-4">
                 <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Projects</h4>
-                {cvData.Projects.map((proj, i) => (
+                {data.Projects.map((proj, i) => (
                   <div key={i} className="mb-3">
                     <h6>{proj.projectName}</h6>
                     <p>{proj.projectDescription}</p>
-                    {proj.projectLink && (
-                      <a href={proj.projectLink} target="_blank" rel="noopener noreferrer" style={{ color: themeColor }}>
-                        View Project
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </section>
-            )}
-
-            {cvData.Certifications?.length > 0 && (
-              <section className="mb-4">
-                <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>Certifications</h4>
-                <ul>
-                  {cvData.Certifications.map((cert, i) => (
-                    <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {cvData["References (optional)"]?.length > 0 && (
-              <section className="mb-4">
-                <h4 className="pb-2 border-bottom border-3" style={{ borderColor: themeColor }}>References</h4>
-                {cvData["References (optional)"].map((ref, i) => (
-                  <div key={i}>
-                    <p><strong>{ref.refName}</strong> - {ref.refPosition}, {ref.refCompany} ({ref.refContact})</p>
                   </div>
                 ))}
               </section>
