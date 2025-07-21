@@ -1,6 +1,9 @@
-export async function POST(req) {
+// src/app/api/translate/route.js
+import { NextResponse } from "next/server";
+
+export async function POST(request) {
   try {
-    const body = await req.json();
+    const body = await request.json();
 
     const libreRes = await fetch("https://libretranslate.de/translate", {
       method: "POST",
@@ -13,14 +16,14 @@ export async function POST(req) {
       }),
     });
 
+    if (!libreRes.ok) {
+      return NextResponse.json({ error: "Failed to translate" }, { status: libreRes.status });
+    }
+
     const data = await libreRes.json();
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(data);
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Translation failed" }), {
-      status: 500,
-    });
+    console.error("Translation API error:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
