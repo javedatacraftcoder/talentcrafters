@@ -1,9 +1,12 @@
-// src/app/api/translate/route.js
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
   try {
     const body = await request.json();
+
+    if (!body.q || !body.source || !body.target) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
 
     const libreRes = await fetch("https://libretranslate.de/translate", {
       method: "POST",
@@ -12,12 +15,13 @@ export async function POST(request) {
         q: body.q,
         source: body.source,
         target: body.target,
-        format: "text",
+        format: "text"
       }),
     });
 
     if (!libreRes.ok) {
-      return NextResponse.json({ error: "Failed to translate" }, { status: libreRes.status });
+      const errText = await libreRes.text();
+      return NextResponse.json({ error: `LibreTranslate error: ${errText}` }, { status: libreRes.status });
     }
 
     const data = await libreRes.json();
