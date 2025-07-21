@@ -15,7 +15,9 @@ export async function POST(request) {
         q: body.q,
         source: body.source,
         target: body.target,
-        format: "text"
+        format: "text",
+        alternatives: 1,
+        api_key: ""  // ← requerido aunque sea vacío
       }),
     });
 
@@ -28,7 +30,5 @@ export async function POST(request) {
     const data = JSON.parse(text);
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Translation API error:", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
-  }
-}
+    console.error("🔥 Translation API error:", error);
+    return NextResponse.json(
