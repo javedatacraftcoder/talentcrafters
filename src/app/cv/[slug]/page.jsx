@@ -62,24 +62,20 @@ export default function PublicCVPage() {
     html2pdf().set(opt).from(element).save();
   };
 
+  // 🔄 NUEVA implementación que usa el endpoint interno
   const translateText = async (text, targetLang) => {
     try {
-      const res = await fetch("https://libretranslate.de/translate", {
+      const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          q: text,
-          source: "en",
-          target: targetLang,
-          format: "text",
-        }),
+        body: JSON.stringify({ q: text, target: targetLang }),
       });
 
       const data = await res.json();
-      return data.translatedText;
+      return data.translatedText || text;
     } catch (err) {
       console.error("Translation error:", err);
-      return text; // fallback
+      return text;
     }
   };
 

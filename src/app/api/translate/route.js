@@ -1,19 +1,27 @@
-import { NextResponse } from "next/server";
-import translate from "google-translate-open-api";
-
 export async function POST(req) {
-  const { text, targetLang } = await req.json();
-
   try {
-    const result = await translate(text, {
-      tld: "com",
-      to: targetLang,
+    const { q, target } = await req.json();
+
+    const res = await fetch("https://libretranslate.de/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        q,
+        source: "en",
+        target,
+        format: "text",
+      }),
     });
 
-    const translatedText = result.data[0];
-    return NextResponse.json({ translated: translatedText });
-  } catch (error) {
-    console.error("Translation error:", error);
-    return NextResponse.json({ error: "Translation failed" }, { status: 500 });
+    const data = await res.json();
+    return new Response(JSON.stringify({ translatedText: data.translatedText }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    console.error("API Error:", err);
+    return new Response(JSON.stringify({ error: "Failed to translate" }), {
+      status: 500,
+    });
   }
 }
