@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
 import html2pdf from "html2pdf.js";
 
 export default function PublicCVPage() {
@@ -20,17 +20,19 @@ export default function PublicCVPage() {
   const printRef = useRef();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const cvsSnap = await getDocs(collection(db, "cvs"));
-      const found = cvsSnap.docs.find((doc) => doc.data().cvSlug === slug);
+  const fetchData = async () => {
+    try {
+      const q = query(collection(db, "cvs"), where("cvSlug", "==", slug));
+      const snapshot = await getDocs(q);
 
-      if (!found) {
+      if (snapshot.empty) {
         setLoading(false);
         return;
       }
 
-      const data = found.data();
-      const ownerEmail = found.id;
+      const docSnap = snapshot.docs[0];
+      const data = docSnap.data();
+      const ownerEmail = docSnap.id;
 
       const isPublic = data.dataConsent === true;
       const isOwner = session?.user?.email === ownerEmail;
@@ -50,12 +52,63 @@ export default function PublicCVPage() {
         });
       }
 
-      setCvData({ ...data, views: (data.views || 0) + (isPublic && !isOwner ? 1 : 0) });
+      setCvData({
+        ...data,
+        views: (data.views || 0) + (isPublic && !isOwner ? 1 : 0),
+      });
       setLoading(false);
-    };
+    } catch (error) {
+      console.error("Error fetching CV:", error);
+      setLoading(false);
+    }
+  };
 
-    fetchData();
-  }, [slug, session, status]);
+  fetchData();
+}, [slug, session, status]);
+
+const handleTranslate = async (lang) => {
+  setSelectedLang(lang);
+
+  if (lang === "original") {
+    setTranslatedCV(null);
+    return;
+  }
+
+  if (!cvData?.summary || cvData.summary.trim() === "") {
+    console.warn("No summary to translate.");
+    setTranslatedCV(null);
+    return;
+  }
+
+  setIsTranslating(true);
+
+  try {
+    const response = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        q: cvData.summary,
+        source: "en",
+        target: lang,
+        format: "text",
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      console.error("Translation API error:", data.error);
+      setTranslatedCV(null);
+    } else {
+      setTranslatedCV(data.translatedText);
+    }
+  } catch (error) {
+    console.error("Translation error:", error);
+    setTranslatedCV(null);
+  } finally {
+    setIsTranslating(false);
+  }
+};
 
   const handleDownloadPDF = () => {
     const element = printRef.current;
@@ -67,37 +120,6 @@ export default function PublicCVPage() {
       jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
     html2pdf().set(opt).from(element).save();
-  };
-
-  const handleTranslate = async (lang) => {
-    setSelectedLang(lang);
-
-    if (lang === "original") {
-      setTranslatedCV(null);
-      return;
-    }
-
-    setIsTranslating(true);
-
-    try {
-      const response = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          q: cvData.summary,
-          source: "en",
-          target: lang,
-          format: "text",
-        }),
-      });
-      const data = await response.json();
-      setTranslatedCV(data.translatedText);
-    } catch (error) {
-      console.error("Translation error:", error);
-      setTranslatedCV(null);
-    } finally {
-      setIsTranslating(false);
-    }
   };
 
   if (loading || status === "loading") return <p className="text-center mt-5 text-dark">Loading CV...</p>;
