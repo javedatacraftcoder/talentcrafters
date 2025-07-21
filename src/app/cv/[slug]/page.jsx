@@ -1,3 +1,4 @@
+// src/app/cv/[slug]/page.jsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -13,6 +14,9 @@ export default function PublicCVPage() {
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [selectedLang, setSelectedLang] = useState("original");
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translatedCV, setTranslatedCV] = useState(null);
   const printRef = useRef();
 
   useEffect(() => {
@@ -65,6 +69,37 @@ export default function PublicCVPage() {
     html2pdf().set(opt).from(element).save();
   };
 
+  const handleTranslate = async (lang) => {
+    setSelectedLang(lang);
+
+    if (lang === "original") {
+      setTranslatedCV(null);
+      return;
+    }
+
+    setIsTranslating(true);
+
+    try {
+      const response = await fetch("https://libretranslate.de/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          q: cvData.summary,
+          source: "en",
+          target: lang,
+          format: "text",
+        }),
+      });
+      const data = await response.json();
+      setTranslatedCV(data.translatedText);
+    } catch (error) {
+      console.error("Translation error:", error);
+      setTranslatedCV(null);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   if (loading || status === "loading") return <p className="text-center mt-5 text-dark">Loading CV...</p>;
   if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
@@ -74,7 +109,26 @@ export default function PublicCVPage() {
 
   return (
     <div className="bg-white py-5">
+      {isTranslating && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-white bg-opacity-75" style={{ zIndex: 9999 }}>
+          <img src="/talentcrafterslogo.png" alt="Logo" width={120} className="mb-3" />
+          <p className="fs-5 text-dark">Translating CV...</p>
+        </div>
+      )}
+
       <div className="text-center mb-4">
+        <div className="mb-2">
+          <select
+            value={selectedLang}
+            onChange={(e) => handleTranslate(e.target.value)}
+            className="form-select w-auto d-inline-block"
+          >
+            <option value="original">Original (EN)</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </div>
         <button className="btn btn-success btn-sm" onClick={handleDownloadPDF}>
           Download PDF
         </button>
@@ -92,12 +146,7 @@ export default function PublicCVPage() {
             <p className="mb-1"><strong>📞 Phone:</strong> {cvData.phone}</p>
             <p className="mb-3"><strong>📧 Email:</strong> {cvData.email}</p>
             {cvData.linkedin && (
-              <a
-                href={cvData.linkedin}
-                target="_blank"
-                className="btn btn-light btn-sm mb-3 fw-bold"
-                rel="noopener noreferrer"
-              >
+              <a href={cvData.linkedin} target="_blank" className="btn btn-light btn-sm mb-3 fw-bold" rel="noopener noreferrer">
                 View LinkedIn
               </a>
             )}
@@ -129,9 +178,9 @@ export default function PublicCVPage() {
           </div>
 
           {/* Main panel */}
-          <div className="col-md-8 bg-white p-4" style={{ color: textColor }}>
+           <div className="col-md-8 bg-white p-4" style={{ color: textColor }}>
             <h4 className="pb-2 mb-4 border-bottom border-3" style={{ borderColor: themeColor }}>Professional Summary</h4>
-            <p>{cvData.summary}</p>
+            <p>{translatedCV || cvData.summary}</p>
 
             {cvData["Work Experience"]?.length > 0 && (
               <section className="mb-4">
