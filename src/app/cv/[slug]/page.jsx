@@ -80,7 +80,7 @@ export default function PublicCVPage() {
     setIsTranslating(true);
 
     try {
-      const response = await fetch("https://libretranslate.de/translate", {
+      const response = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
