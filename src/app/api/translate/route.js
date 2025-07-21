@@ -8,16 +8,14 @@ export async function POST(request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const libreRes = await fetch("https://libretranslate.com/translate", {
+    const libreRes = await fetch("https://translate.astian.org/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         q: body.q,
         source: body.source,
         target: body.target,
-        format: "text",
-        alternatives: 1,
-        api_key: ""  // ← requerido aunque sea vacío
+        format: "text"
       }),
     });
 
@@ -31,4 +29,6 @@ export async function POST(request) {
     return NextResponse.json(data);
   } catch (error) {
     console.error("🔥 Translation API error:", error);
-    return NextResponse.json(
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
