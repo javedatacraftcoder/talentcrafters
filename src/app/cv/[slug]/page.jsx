@@ -11,10 +11,10 @@ export default function PublicCVPage() {
   const { data: session, status } = useSession();
   const { slug } = useParams();
   const [cvData, setCvData] = useState(null);
-  const [originalData, setOriginalData] = useState(null);
+  const [translatedCV, setTranslatedCV] = useState(null);
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("original");
+  const [translating, setTranslating] = useState(false);
   const printRef = useRef();
 
   useEffect(() => {
@@ -29,28 +29,21 @@ export default function PublicCVPage() {
 
       const data = found.data();
       const ownerEmail = found.id;
-
       const isPublic = data.dataConsent === true;
       const isOwner = session?.user?.email === ownerEmail;
 
-      if (!isPublic && status !== "loading") {
-        if (!isOwner) {
-          setAccessDenied(true);
-          setLoading(false);
-          return;
-        }
+      if (!isPublic && status !== "loading" && !isOwner) {
+        setAccessDenied(true);
+        setLoading(false);
+        return;
       }
 
       if (isPublic && !isOwner) {
         const cvRef = doc(db, "cvs", ownerEmail);
-        await updateDoc(cvRef, {
-          views: (data.views || 0) + 1,
-        });
+        await updateDoc(cvRef, { views: (data.views || 0) + 1 });
       }
 
-      const newData = { ...data, views: (data.views || 0) + (isPublic && !isOwner ? 1 : 0) };
-      setCvData(newData);
-      setOriginalData(newData);
+      setCvData({ ...data, views: (data.views || 0) + (isPublic && !isOwner ? 1 : 0) });
       setLoading(false);
     };
 
@@ -60,7 +53,7 @@ export default function PublicCVPage() {
   const handleDownloadPDF = () => {
     const element = printRef.current;
     const opt = {
-      margin: 0.5,
+      margin: 0,
       filename: `${cvData.fullName}-cv.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
@@ -69,143 +62,197 @@ export default function PublicCVPage() {
     html2pdf().set(opt).from(element).save();
   };
 
-  const translateCV = async (lang) => {
-    if (lang === "original") {
-      setCvData(originalData);
-      return;
-    }
-
+  const translateText = async (text, targetLang) => {
     try {
-      const res = await fetch("/api/translate", {
+      const res = await fetch("https://libretranslate.de/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: JSON.stringify(originalData), targetLang: lang }),
+        body: JSON.stringify({
+          q: text,
+          source: "en",
+          target: targetLang,
+          format: "text",
+        }),
       });
 
-      const { translatedText } = await res.json();
-      const parsed = JSON.parse(translatedText);
-      setCvData(parsed);
-    } catch (error) {
-      console.error("Translation error:", error);
-      alert("Failed to translate CV.");
+      const data = await res.json();
+      return data.translatedText;
+    } catch (err) {
+      console.error("Translation error:", err);
+      return text; // fallback
     }
   };
 
-  const handleLanguageChange = (e) => {
+  const handleLanguageChange = async (e) => {
     const lang = e.target.value;
-    setSelectedLanguage(lang);
-    translateCV(lang);
+    if (!lang || !cvData) return;
+
+    setTranslating(true);
+
+    const translated = {};
+
+    const fieldsToTranslate = ["summary", "technicalSkills", "softSkills"];
+    for (let field of fieldsToTranslate) {
+      if (cvData[field]) {
+        translated[field] = await translateText(cvData[field], lang);
+      }
+    }
+
+    const translateArraySection = async (sectionName, fields) => {
+      if (!cvData[sectionName]) return [];
+      return Promise.all(
+        cvData[sectionName].map(async (item) => {
+          const translatedItem = { ...item };
+          for (let field of fields) {
+            if (item[field]) {
+              translatedItem[field] = await translateText(item[field], lang);
+            }
+          }
+          return translatedItem;
+        })
+      );
+    };
+
+    translated["Work Experience"] = await translateArraySection("Work Experience", ["jobTitle", "company", "jobLocation", "description"]);
+    translated["Education"] = await translateArraySection("Education", ["degree", "institution", "educationLocation", "achievements"]);
+    translated["Projects"] = await translateArraySection("Projects", ["projectName", "projectDescription"]);
+    translated["Certifications"] = cvData.Certifications || [];
+    translated["References (optional)"] = await translateArraySection("References (optional)", ["refName", "refPosition", "refCompany"]);
+
+    setTranslatedCV({ ...cvData, ...translated });
+    setTranslating(false);
   };
+
+  const data = translatedCV || cvData;
 
   if (loading || status === "loading") return <p className="text-center mt-5 text-dark">Loading CV...</p>;
   if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
-  const themeColor = cvData.themeColor || "#0d6efd";
+  const themeColor = data.themeColor || "#0d6efd";
 
   return (
-    <div className="container my-5 text-dark">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="fw-bold">{cvData.fullName}</h3>
-        <div className="d-flex align-items-center gap-2">
-          <select className="form-select" value={selectedLanguage} onChange={handleLanguageChange}>
-            <option value="original">🌐 Original</option>
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-            <option value="de">Deutsch</option>
-            <option value="it">Italiano</option>
-          </select>
-          <button className="btn btn-success" onClick={handleDownloadPDF}>Download PDF</button>
-        </div>
+    <div className="bg-white py-5">
+      <div className="text-center mb-4">
+        <button className="btn btn-success btn-sm me-3" onClick={handleDownloadPDF}>
+          Download PDF
+        </button>
+
+        <select
+          onChange={handleLanguageChange}
+          className="form-select d-inline w-auto"
+          disabled={translating}
+        >
+          <option value="">Translate CV</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+        </select>
       </div>
 
-      <div className="row shadow rounded overflow-hidden bg-white p-4" ref={printRef}>
-        {/* Header section with color stripe */}
-        <div className="d-flex align-items-start mb-4 border-bottom pb-3" style={{ borderColor: themeColor }}>
-          <img
-            src={cvData.photo || "/default-avatar.png"}
-            alt="Profile"
-            className="rounded-circle me-4"
-            style={{ width: "100px", height: "100px", objectFit: "cover" }}
-          />
-          <div className="flex-grow-1">
-            <h4 className="mb-1">{cvData.fullName}</h4>
-            <p className="mb-1"><strong>Email:</strong> {cvData.email}</p>
-            <p className="mb-1"><strong>Phone:</strong> {cvData.phone}</p>
-            <p className="mb-0"><strong>Address:</strong> {cvData.location}</p>
-          </div>
-        </div>
-
-        {/* Sections */}
-        <div className="row">
-          <div className="col-md-3 border-end text-end pe-4">
-            {cvData.summary && <p className="fw-bold">Summary</p>}
-            {cvData["Work Experience"]?.length > 0 && <p className="fw-bold">Experience</p>}
-            {cvData.Education?.length > 0 && <p className="fw-bold">Education</p>}
-            {cvData.Projects?.length > 0 && <p className="fw-bold">Projects</p>}
-            {cvData.Certifications?.length > 0 && <p className="fw-bold">Certifications</p>}
-            {cvData["References (optional)"]?.length > 0 && <p className="fw-bold">References</p>}
+      <div className="mx-auto shadow-lg rounded" ref={printRef} style={{ maxWidth: "960px", boxShadow: "0 0 30px rgba(0,0,0,0.2)" }}>
+        <div className="d-flex">
+          {/* Sidebar */}
+          <div className="bg-white p-4 d-flex flex-column align-items-center" style={{ width: "220px", borderRight: `4px solid ${themeColor}` }}>
+            {data.photo && (
+              <img src={data.photo} alt="Profile" className="rounded-circle mb-3" width="120" height="120" />
+            )}
+            <hr className="w-100" style={{ borderTop: `4px solid ${themeColor}` }} />
+            <div className="text-center text-dark mt-3">
+              <h5 className="fw-bold">{data.fullName}</h5>
+              <p className="mb-1"><strong>Email:</strong> {data.email}</p>
+              <p className="mb-1"><strong>Phone:</strong> {data.phone}</p>
+              <p className="mb-1"><strong>Address:</strong> {data.location}</p>
+            </div>
           </div>
 
-          <div className="col-md-9 ps-4">
-            {cvData.summary && (
-              <section className="mb-3">
-                <p>{cvData.summary}</p>
-              </section>
+          {/* Main Content */}
+          <div className="flex-grow-1 p-4" style={{ color: "#1a1a1a" }}>
+            {data.summary && (
+              <div className="mb-4">
+                <div className="d-flex">
+                  <div className="fw-bold text-end pe-3" style={{ width: "160px" }}>Summary</div>
+                  <div>{data.summary}</div>
+                </div>
+              </div>
             )}
 
-            {cvData["Work Experience"]?.length > 0 && (
-              <section className="mb-3">
-                {cvData["Work Experience"].map((job, i) => (
-                  <div key={i} className="mb-2">
-                    <h6 className="mb-1">{job.jobTitle} at {job.company}</h6>
-                    <small className="text-muted">{job.startDate} – {job.endDate || "Present"} | {job.jobLocation}</small>
-                    <p>{job.description}</p>
+            {data["Work Experience"]?.length > 0 && (
+              <div className="mb-4">
+                <div className="d-flex">
+                  <div className="fw-bold text-end pe-3" style={{ width: "160px" }}>Work Experience</div>
+                  <div>
+                    {data["Work Experience"].map((job, i) => (
+                      <div key={i} className="mb-2">
+                        <h6 className="mb-1">{job.jobTitle} at {job.company}</h6>
+                        <small className="text-muted">{job.startDate} – {job.endDate || "Present"} | {job.jobLocation}</small>
+                        <p className="mb-0">{job.description}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </section>
+                </div>
+              </div>
             )}
 
-            {cvData.Education?.length > 0 && (
-              <section className="mb-3">
-                {cvData.Education.map((edu, i) => (
-                  <div key={i} className="mb-2">
-                    <h6 className="mb-1">{edu.degree} - {edu.institution}</h6>
-                    <small className="text-muted">{edu.educationStart} – {edu.educationEnd} | {edu.educationLocation}</small>
-                    {edu.achievements && <p>{edu.achievements}</p>}
+            {data.Education?.length > 0 && (
+              <div className="mb-4">
+                <div className="d-flex">
+                  <div className="fw-bold text-end pe-3" style={{ width: "160px" }}>Education</div>
+                  <div>
+                    {data.Education.map((edu, i) => (
+                      <div key={i} className="mb-2">
+                        <h6>{edu.degree} - {edu.institution}</h6>
+                        <small className="text-muted">{edu.educationStart} – {edu.educationEnd} | {edu.educationLocation}</small>
+                        {edu.achievements && <p>{edu.achievements}</p>}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </section>
+                </div>
+              </div>
             )}
 
-            {cvData.Projects?.length > 0 && (
-              <section className="mb-3">
-                {cvData.Projects.map((proj, i) => (
-                  <div key={i} className="mb-2">
-                    <h6 className="mb-1">{proj.projectName}</h6>
-                    <p>{proj.projectDescription}</p>
+            {data.Projects?.length > 0 && (
+              <div className="mb-4">
+                <div className="d-flex">
+                  <div className="fw-bold text-end pe-3" style={{ width: "160px" }}>Projects</div>
+                  <div>
+                    {data.Projects.map((proj, i) => (
+                      <div key={i} className="mb-2">
+                        <h6>{proj.projectName}</h6>
+                        <p>{proj.projectDescription}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </section>
+                </div>
+              </div>
             )}
 
-            {cvData.Certifications?.length > 0 && (
-              <section className="mb-3">
-                <ul>
-                  {cvData.Certifications.map((cert, i) => (
-                    <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
-                  ))}
-                </ul>
-              </section>
+            {data.Certifications?.length > 0 && (
+              <div className="mb-4">
+                <div className="d-flex">
+                  <div className="fw-bold text-end pe-3" style={{ width: "160px" }}>Certifications</div>
+                  <div>
+                    <ul>
+                      {data.Certifications.map((cert, i) => (
+                        <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
             )}
 
-            {cvData["References (optional)"]?.length > 0 && (
-              <section className="mb-3">
-                {cvData["References (optional)"].map((ref, i) => (
-                  <p key={i}><strong>{ref.refName}</strong> - {ref.refPosition}, {ref.refCompany} ({ref.refContact})</p>
-                ))}
-              </section>
+            {data["References (optional)"]?.length > 0 && (
+              <div>
+                <div className="d-flex">
+                  <div className="fw-bold text-end pe-3" style={{ width: "160px" }}>References</div>
+                  <div>
+                    {data["References (optional)"].map((ref, i) => (
+                      <p key={i}><strong>{ref.refName}</strong> - {ref.refPosition}, {ref.refCompany}</p>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
