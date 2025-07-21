@@ -8,7 +8,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const libreRes = await fetch("https://libretranslate.de/translate", {
+    const libreRes = await fetch("https://translate.argosopentech.com/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
