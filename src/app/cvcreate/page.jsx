@@ -29,6 +29,13 @@ const formSchema = {
       ]
     },
     {
+      title: "Skills",
+      repeatable: true,
+      fields: [
+        { label: "Skill Name", name: "skill", type: "text", required: true }
+      ]
+    },
+    {
       title: "Work Experience",
       repeatable: true,
       fields: [
