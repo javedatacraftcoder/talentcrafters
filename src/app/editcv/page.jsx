@@ -99,72 +99,74 @@ export default function EditCVPage() {
       <h2 className="mb-4">Edit Your CV</h2>
       <form onSubmit={handleSubmit}>
         {Object.entries(formData).map(([key, value]) => (
-          Array.isArray(value) ? (
-            <div key={key} className="mb-4">
-              <h5 className="text-capitalize">{key.replace(/([A-Z])/g, ' $1')}</h5>
-              {value.map((item, idx) => (
-                <div key={idx} className="border rounded p-3 mb-3">
-                  {Object.entries(item).map(([field, val]) => (
-                    <div className="mb-2" key={field}>
-                      <label className="form-label text-capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
-                      <input
-                        type="text"
-                        name={field}
-                        className="form-control"
-                        value={val}
-                        onChange={(e) => handleRepeatableChange(key, idx, e)}
-                      />
-                    </div>
-                  ))}
-                  <button type="button" className="btn btn-sm btn-danger" onClick={() => removeRepeatableEntry(key, idx)}>
-                    − Remove
-                  </button>
-                </div>
-              ))}
-              <button type="button" className="btn btn-sm btn-primary" onClick={() => addRepeatableEntry(key)}>
-                + Add {key.replace(/([A-Z])/g, ' $1')}
-              </button>
-            </div>
-          ) : key === "dataConsent" ? (
-            <div className="form-check mb-3" key={key}>
-              <input
-                className="form-check-input"
-                type="checkbox"
-                name={key}
-                id={key}
-                checked={!!value}
-                onChange={handleChange}
-              />
-              <label className="form-check-label" htmlFor={key}>
-                I authorize the use of my data to generate a public CV on this platform.
-              </label>
-            </div>
-          ) : key === "photo" ? (
-            <div className="mb-3" key={key}>
-              <label className="form-label">Current Profile Photo</label>
-              {value && <div className="mb-2">
-                <img src={value} alt="Current Profile" width="100" height="100" className="rounded-circle" />
-              </div>}
-              <input
-                type="file"
-                accept="image/*"
-                name="photo"
-                className="form-control"
-                onChange={handleChange}
-              />
-              <div className="form-text">Upload a new image to replace the current one.</div>
-            </div>
-          ) : (typeof value === "string" || typeof value === "number" || typeof value === "boolean") && (
-            <div className="mb-3" key={key}>
-              <label className="form-label text-capitalize">{key.replace(/([A-Z])/g, ' $1')}</label>
-              <input
-                type="text"
-                name={key}
-                className="form-control"
-                value={value}
-                onChange={handleChange}
-              />
-            </div>
+          ["views", "cvSlug", "themeColor"].includes(key) ? null : (
+            Array.isArray(value) ? (
+              <div key={key} className="mb-4">
+                <h5 className="text-capitalize">{key.replace(/([A-Z])/g, ' $1')}</h5>
+                {value.map((item, idx) => (
+                  <div key={idx} className="border rounded p-3 mb-3">
+                    {Object.entries(item).map(([field, val]) => (
+                      <div className="mb-2" key={field}>
+                        <label className="form-label text-capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
+                        <input
+                          type="text"
+                          name={field}
+                          className="form-control"
+                          value={val}
+                          onChange={(e) => handleRepeatableChange(key, idx, e)}
+                        />
+                      </div>
+                    ))}
+                    <button type="button" className="btn btn-sm btn-danger" onClick={() => removeRepeatableEntry(key, idx)}>
+                      − Remove
+                    </button>
+                  </div>
+                ))}
+                <button type="button" className="btn btn-sm btn-primary" onClick={() => addRepeatableEntry(key)}>
+                  + Add {key.replace(/([A-Z])/g, ' $1')}
+                </button>
+              </div>
+            ) : key === "dataConsent" ? (
+              <div className="form-check mb-3" key={key}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  name={key}
+                  id={key}
+                  checked={!!value}
+                  onChange={handleChange}
+                />
+                <label className="form-check-label" htmlFor={key}>
+                  I authorize the use of my data to generate a public CV on this platform.
+                </label>
+              </div>
+            ) : key === "photo" ? (
+              <div className="mb-3" key={key}>
+                <label className="form-label">Current Profile Photo</label>
+                {value && <div className="mb-2">
+                  <img src={value} alt="Current Profile" width="100" height="100" className="rounded-circle" />
+                </div>}
+                <input
+                  type="file"
+                  accept="image/*"
+                  name="photo"
+                  className="form-control"
+                  onChange={handleChange}
+                />
+                <div className="form-text">Upload a new image to replace the current one.</div>
+              </div>
+            ) : (typeof value === "string" || typeof value === "number" || typeof value === "boolean") && (
+              <div className="mb-3" key={key}>
+                <label className="form-label text-capitalize">{key.replace(/([A-Z])/g, ' $1')}</label>
+                <input
+                  type="text"
+                  name={key}
+                  className="form-control"
+                  value={value}
+                  onChange={handleChange}
+                />
+              </div>
+            )
           )
         ))}
         <button type="submit" className="btn btn-success mt-3">Update CV</button>
