@@ -86,7 +86,7 @@ export default function PublicCVPage() {
 
       <div id="cv-print" ref={printRef} className="bg-white p-4 shadow" style={{ fontSize: '12px', lineHeight: '1.5', color: '#000' }}>
         <div className="text-center mb-4">
-          {cvData.photo && <img src={cvData.photo} alt="Profile" className="rounded-circle mb-2" width="100" />}
+          {cvData.photo && <img src={cvData.photo} alt="Profile" className="rounded-circle mb-2" width="100" style={{ border: `3px solid ${cvData.themeColor || '#004085'}`, padding: '2px' }} />}
           <h2 className="fw-bold mb-0">{cvData.fullName}</h2>
           <p className="mb-1">{cvData.profession}</p>
           <p className="mb-0">{cvData.email} | {cvData.phone} | {cvData.location}</p>
