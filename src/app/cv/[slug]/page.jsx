@@ -56,23 +56,12 @@ export default function PublicCVPage() {
   const handleDownloadPDF = () => {
     const element = printRef.current;
     const opt = {
-      margin: 0,
+      margin: 0.5,
       filename: `${cvData.fullName}-cv.pdf`,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-        allowTaint: true,
-        scrollX: 0,
-        scrollY: 0,
-      },
-      jsPDF: {
-        unit: "pt",
-        format: "a4",
-        orientation: "portrait",
-      },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"] },
     };
     html2pdf().set(opt).from(element).save();
   };
@@ -81,143 +70,115 @@ export default function PublicCVPage() {
   if (accessDenied) return <p className="text-center mt-5 text-danger">This CV is private.</p>;
   if (!cvData) return <p className="text-center mt-5 text-danger">CV not found</p>;
 
-  const themeColor = cvData.themeColor || "#004085";
-
   return (
-    <div className="container my-5 text-dark">
-      <style>
-        {`
-          #cv-print * {
-            color: #000 !important;
-            font-size: 12px !important;
-            line-height: 1.5;
-          }
-          #cv-print h2, #cv-print h3, #cv-print h4, #cv-print h5, #cv-print h6 {
-            font-size: 14px !important;
-          }
-        `}
-      </style>
+    <div className="container my-5">
       <div className="text-end mb-3">
-        <button className="btn btn-success btn-sm" onClick={handleDownloadPDF}>
-          Download PDF
-        </button>
+        <button className="btn btn-success btn-sm" onClick={handleDownloadPDF}>Download PDF</button>
       </div>
 
-      <div id="cv-print" className="d-flex shadow rounded overflow-hidden" ref={printRef} style={{ background: '#fff' }}>
-       
-        {/* Left Panel */}
-        <div className="p-4" style={{ backgroundColor: themeColor, color: 'white', width: '35%' }}>
-          {cvData.photo && (
-            <div className="text-center">
-              <img src={cvData.photo} alt="Profile" className="rounded-circle mb-3 bg-white p-1" width="120" height="120" />
-            </div>
-          )}
-          <h2 className="text-white">{cvData.fullName?.toUpperCase()}</h2>
-          <h5 className="mt-2">{cvData.profession || "Customer Experience Specialist"}</h5>
-
-         <div className="mt-4">
-            <h6 className="text-white text-uppercase border-bottom pb-1">Contact</h6>
-            {cvData.email && <p><strong>Email:</strong> {cvData.email}</p>}
-            {cvData.phone && <p><strong>Phone:</strong> {cvData.phone}</p>}
-            {cvData.linkedin && <p><strong>LinkedIn:</strong> {cvData.linkedin}</p>}
-            {cvData.location && <p><strong>Location:</strong> {cvData.location}</p>}
-          </div>
-          {cvData.Languages?.length > 0 && (
-            <div className="mt-4">
-              <h6 className="text-white text-uppercase border-bottom pb-1">Languages</h6>
-              <ul className="list-unstyled">
-                {cvData.Languages.map((lang, i) => (
-                  <li key={i}>{lang.language}: {lang.level}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {cvData["References (optional)"]?.length > 0 && (
-            <div className="mt-4">
-              <h6 className="text-white text-uppercase border-bottom pb-1">References</h6>
-              {cvData["References (optional)"].map((ref, i) => (
-                <div key={i} className="mb-2">
-                  <p className="mb-0"><strong>{ref.refName}</strong></p>
-                  <small>{ref.refPosition}, {ref.refCompany}</small><br />
-                  <small>{ref.refContact}</small>
-                </div>
-              ))}
-            </div>
-          )}
+      <div id="cv-print" ref={printRef} className="bg-white p-4 shadow" style={{ fontSize: '12px', lineHeight: '1.5' }}>
+        <div className="text-center mb-4">
+          {cvData.photo && <img src={cvData.photo} alt="Profile" className="rounded-circle mb-2" width="100" />}
+          <h2 className="fw-bold mb-0">{cvData.fullName}</h2>
+          <p className="mb-1">{cvData.profession}</p>
+          <p className="mb-0">{cvData.email} | {cvData.phone} | {cvData.location}</p>
+          {cvData.linkedin && <p className="mb-0">LinkedIn: {cvData.linkedin}</p>}
         </div>
 
-        {/* Right Panel */}
-        <div className="p-4" style={{ width: '65%' }}>
-          <div>
-            <h5 className="text-uppercase border-bottom pb-2" style={{ borderColor: themeColor }}>Professional Summary</h5>
+        {cvData.summary && (
+          <section className="mb-4">
+            <h5 className="border-bottom pb-1">Professional Summary</h5>
             <p>{cvData.summary}</p>
-          </div>
+          </section>
+        )}
 
-          {cvData["Work Experience"]?.length > 0 && (
-            <div className="mt-4">
-              <h5 className="text-uppercase border-bottom pb-2" style={{ borderColor: themeColor }}>Work Experience</h5>
-              {cvData["Work Experience"].map((job, i) => (
-                <div key={i} className="mb-3">
-                  <strong>{job.jobTitle} – {job.company}</strong>
-                  <div className="text-muted small">{job.startDate} – {job.endDate || "Present"} | {job.jobLocation}</div>
-                  <p>{job.description}</p>
-                </div>
+        {cvData["Work Experience"]?.length > 0 && (
+          <section className="mb-4 page-break">
+            <h5 className="border-bottom pb-1">Work Experience</h5>
+            {cvData["Work Experience"].map((job, i) => (
+              <div key={i} className="mb-2">
+                <strong>{job.jobTitle} – {job.company}</strong>
+                <div className="text-muted small">{job.startDate} – {job.endDate || "Present"} | {job.jobLocation}</div>
+                <p>{job.description}</p>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {cvData.Education?.length > 0 && (
+          <section className="mb-4 page-break">
+            <h5 className="border-bottom pb-1">Education</h5>
+            {cvData.Education.map((edu, i) => (
+              <div key={i} className="mb-2">
+                <strong>{edu.degree}</strong><br />
+                <span>{edu.institution} — {edu.educationEnd}</span>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {cvData.Projects?.length > 0 && (
+          <section className="mb-4">
+            <h5 className="border-bottom pb-1">Projects</h5>
+            {cvData.Projects.map((proj, i) => (
+              <div key={i} className="mb-2">
+                <strong>{proj.projectName}</strong>
+                <p>{proj.projectDescription}</p>
+                {proj.projectLink && (
+                  <a href={proj.projectLink} target="_blank" rel="noopener noreferrer">
+                    View Project
+                  </a>
+                )}
+              </div>
+            ))}
+          </section>
+        )}
+
+        {cvData.Certifications?.length > 0 && (
+          <section className="mb-4">
+            <h5 className="border-bottom pb-1">Certifications</h5>
+            <ul>
+              {cvData.Certifications.map((cert, i) => (
+                <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
               ))}
-            </div>
-          )}
+            </ul>
+          </section>
+        )}
 
-          {cvData.Education?.length > 0 && (
-            <div className="mt-4">
-              <h5 className="text-uppercase border-bottom pb-2" style={{ borderColor: themeColor }}>Education</h5>
-              {cvData.Education.map((edu, i) => (
-                <div key={i} className="mb-3">
-                  <strong>{edu.degree}</strong><br />
-                  <span>{edu.institution} — {edu.educationEnd}</span>
-                </div>
+        {cvData.Skills?.length > 0 && (
+          <section className="mb-4">
+            <h5 className="border-bottom pb-1">Skills</h5>
+            <ul className="mb-0">
+              {cvData.Skills.map((item, i) => (
+                <li key={i}>{item.skill}</li>
               ))}
-            </div>
-          )}
+            </ul>
+          </section>
+        )}
 
-          {cvData.Projects?.length > 0 && (
-            <div className="mt-4">
-              <h5 className="text-uppercase border-bottom pb-2" style={{ borderColor: themeColor }}>Projects</h5>
-              {cvData.Projects.map((proj, i) => (
-                <div key={i} className="mb-3">
-                  <strong>{proj.projectName}</strong>
-                  <p>{proj.projectDescription}</p>
-                  {proj.projectLink && (
-                    <a href={proj.projectLink} target="_blank" rel="noopener noreferrer" style={{ color: themeColor }}>
-                      View Project
-                    </a>
-                  )}
-                </div>
+        {cvData.Languages?.length > 0 && (
+          <section className="mb-4">
+            <h5 className="border-bottom pb-1">Languages</h5>
+            <ul className="mb-0">
+              {cvData.Languages.map((lang, i) => (
+                <li key={i}>{lang.language}: {lang.level}</li>
               ))}
-            </div>
-          )}
+            </ul>
+          </section>
+        )}
 
-          {cvData.Certifications?.length > 0 && (
-            <div className="mt-4">
-              <h5 className="text-uppercase border-bottom pb-2" style={{ borderColor: themeColor }}>Certifications</h5>
-              <ul>
-                {cvData.Certifications.map((cert, i) => (
-                  <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {cvData.Skills?.length > 0 && (
-            <div className="mt-4">
-              <h5 className="text-uppercase border-bottom pb-2" style={{ borderColor: themeColor }}>Skills</h5>
-              <ul>
-                {cvData.Skills.map((item, i) => (
-                  <li key={i}>{item.skill}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+        {cvData["References (optional)"]?.length > 0 && (
+          <section className="mb-4">
+            <h5 className="border-bottom pb-1">References</h5>
+            {cvData["References (optional)"].map((ref, i) => (
+              <div key={i}>
+                <strong>{ref.refName}</strong><br />
+                <span>{ref.refPosition}, {ref.refCompany}</span><br />
+                <span>{ref.refContact}</span>
+              </div>
+            ))}
+          </section>
+        )}
       </div>
     </div>
   );
