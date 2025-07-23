@@ -98,20 +98,6 @@ export default function PublicCVPage() {
             <p>{cvData.location}</p>
           </div>
 
-          {cvData.technicalSkills && (
-            <div className="mt-4">
-              <h6 className="text-white text-uppercase border-bottom pb-1">Skills</h6>
-              <p>{cvData.technicalSkills}</p>
-            </div>
-          )}
-
-          {cvData.softSkills && (
-            <div className="mt-4">
-              <h6 className="text-white text-uppercase border-bottom pb-1">Soft Skills</h6>
-              <p>{cvData.softSkills}</p>
-            </div>
-          )}
-
           {cvData.Languages?.length > 0 && (
             <div className="mt-4">
               <h6 className="text-white text-uppercase border-bottom pb-1">Languages</h6>
@@ -123,8 +109,18 @@ export default function PublicCVPage() {
             </div>
           )}
 
-          <hr className="border-light" />
-          <p className="small">Views: {cvData.views}</p>
+          {cvData["References (optional)"]?.length > 0 && (
+            <div className="mt-4">
+              <h6 className="text-white text-uppercase border-bottom pb-1">References</h6>
+              {cvData["References (optional)"].map((ref, i) => (
+                <div key={i} className="mb-2">
+                  <p className="mb-0"><strong>{ref.refName}</strong></p>
+                  <small>{ref.refPosition}, {ref.refCompany}</small><br />
+                  <small>{ref.refContact}</small>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right Panel */}
@@ -156,6 +152,45 @@ export default function PublicCVPage() {
                   <span>{edu.institution} — {edu.educationEnd}</span>
                 </div>
               ))}
+            </div>
+          )}
+
+          {cvData.Projects?.length > 0 && (
+            <div className="mt-4">
+              <h5 className="text-uppercase border-bottom pb-2" style={{ borderColor: themeColor }}>Projects</h5>
+              {cvData.Projects.map((proj, i) => (
+                <div key={i} className="mb-3">
+                  <strong>{proj.projectName}</strong>
+                  <p>{proj.projectDescription}</p>
+                  {proj.projectLink && (
+                    <a href={proj.projectLink} target="_blank" rel="noopener noreferrer" style={{ color: themeColor }}>
+                      View Project
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {cvData.Certifications?.length > 0 && (
+            <div className="mt-4">
+              <h5 className="text-uppercase border-bottom pb-2" style={{ borderColor: themeColor }}>Certifications</h5>
+              <ul>
+                {cvData.Certifications.map((cert, i) => (
+                  <li key={i}>{cert.certification} ({cert.issuer}, {cert.year})</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {cvData.Skills?.length > 0 && (
+            <div className="mt-4">
+              <h5 className="text-uppercase border-bottom pb-2" style={{ borderColor: themeColor }}>Skills</h5>
+              <ul>
+                {cvData.Skills.map((item, i) => (
+                  <li key={i}>{item.skill}</li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
