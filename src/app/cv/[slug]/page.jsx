@@ -72,11 +72,19 @@ export default function PublicCVPage() {
 
   return (
     <div className="container my-5">
+      <style>
+        {`
+          #cv-print, #cv-print * {
+            color: #000 !important;
+          }
+        `}
+      </style>
+
       <div className="text-end mb-3">
         <button className="btn btn-success btn-sm" onClick={handleDownloadPDF}>Download PDF</button>
       </div>
 
-      <div id="cv-print" ref={printRef} className="bg-white p-4 shadow" style={{ fontSize: '12px', lineHeight: '1.5' }}>
+      <div id="cv-print" ref={printRef} className="bg-white p-4 shadow" style={{ fontSize: '12px', lineHeight: '1.5', color: '#000' }}>
         <div className="text-center mb-4">
           {cvData.photo && <img src={cvData.photo} alt="Profile" className="rounded-circle mb-2" width="100" />}
           <h2 className="fw-bold mb-0">{cvData.fullName}</h2>
