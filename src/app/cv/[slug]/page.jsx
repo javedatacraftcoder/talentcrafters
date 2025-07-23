@@ -59,8 +59,20 @@ export default function PublicCVPage() {
       margin: 0,
       filename: `${cvData.fullName}-cv.pdf`,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      html2canvas: {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
+      },
+      jsPDF: {
+        unit: "pt",
+        format: "a4",
+        orientation: "portrait",
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     };
     html2pdf().set(opt).from(element).save();
   };
@@ -73,13 +85,26 @@ export default function PublicCVPage() {
 
   return (
     <div className="container my-5 text-dark">
+      <style>
+        {`
+          #cv-print * {
+            color: #000 !important;
+            font-size: 12px !important;
+            line-height: 1.5;
+          }
+          #cv-print h2, #cv-print h3, #cv-print h4, #cv-print h5, #cv-print h6 {
+            font-size: 14px !important;
+          }
+        `}
+      </style>
       <div className="text-end mb-3">
         <button className="btn btn-success btn-sm" onClick={handleDownloadPDF}>
           Download PDF
         </button>
       </div>
 
-      <div className="d-flex shadow rounded overflow-hidden" ref={printRef} style={{ background: '#fff' }}>
+      <div id="cv-print" className="d-flex shadow rounded overflow-hidden" ref={printRef} style={{ background: '#fff' }}>
+       
         {/* Left Panel */}
         <div className="p-4" style={{ backgroundColor: themeColor, color: 'white', width: '35%' }}>
           {cvData.photo && (
