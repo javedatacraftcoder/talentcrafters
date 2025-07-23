@@ -115,14 +115,13 @@ export default function PublicCVPage() {
           <h2 className="text-white">{cvData.fullName?.toUpperCase()}</h2>
           <h5 className="mt-2">{cvData.profession || "Customer Experience Specialist"}</h5>
 
-          <div className="mt-4">
+         <div className="mt-4">
             <h6 className="text-white text-uppercase border-bottom pb-1">Contact</h6>
-            <p>{cvData.email}</p>
-            <p>{cvData.phone}</p>
-            <p>{cvData.linkedin}</p>
-            <p>{cvData.location}</p>
+            {cvData.email && <p><strong>Email:</strong> {cvData.email}</p>}
+            {cvData.phone && <p><strong>Phone:</strong> {cvData.phone}</p>}
+            {cvData.linkedin && <p><strong>LinkedIn:</strong> {cvData.linkedin}</p>}
+            {cvData.location && <p><strong>Location:</strong> {cvData.location}</p>}
           </div>
-
           {cvData.Languages?.length > 0 && (
             <div className="mt-4">
               <h6 className="text-white text-uppercase border-bottom pb-1">Languages</h6>
