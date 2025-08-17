@@ -153,7 +153,7 @@ export default function EditCVPage() {
                   className="form-control"
                   onChange={handleChange}
                 />
-                <div className="form-text">Upload a new image to replace the current one.</div>
+                <div className="form-text">Upload a new image to replace the current one</div>
               </div>
             ) : (typeof value === "string" || typeof value === "number" || typeof value === "boolean") && (
               <div className="mb-3" key={key}>
